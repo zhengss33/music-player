@@ -1,10 +1,94 @@
 <template>
-  <div>singer</div>
+  <div class="singer-container">
+    <listview :data="singerList"></listview>
+  </div>
 </template>
 
 <script type="text/ecmascript-6">
-  export default{};
+  import { getSingerList } from 'api/singer';
+  import { ERR_OK } from 'api/config';
+  import FormatSinger from 'common/js/format-singer';
+  import Listview from 'base/listview/listview';
+
+  const HOT_NUM = 10;
+  const HOT_NAME = '热门';
+
+  export default{
+    data() {
+      return {
+        singerList: [],
+      };
+    },
+    components: {
+      Listview,
+    },
+    created() {
+      this._getSingerList();
+    },
+    methods: {
+      _getSingerList() {
+        getSingerList().then((res) => {
+          if (res.code === ERR_OK) {
+            this.singerList = this._normalSingerList(res.data.list);
+          }
+        }).catch((err) => {
+          console.log(err);
+        });
+      },
+      // 格式化数据
+      _normalSingerList(list) {
+        const singerList = {
+          hot: {
+            title: HOT_NAME,
+            items: [],
+          },
+        };
+
+        list.forEach((item, index) => {
+          // 取前十为热门
+          if (index < HOT_NUM) {
+            singerList.hot.items.push(new FormatSinger({
+              name: item.Fsinger_name,
+              id: item.Fsinger_mid,
+            }));
+          }
+          const key = item.Findex;
+          if (!singerList[key]) {
+            singerList[key] = {
+              title: key,
+              items: [],
+            };
+          }
+          singerList[key].items.push(new FormatSinger({
+            name: item.Fsinger_name,
+            id: item.Fsinger_mid,
+          }));
+        });
+        // 转为有序列表
+        const ret = [];
+        const hot = [];
+        Object.keys(singerList).forEach((item) => {
+          const val = singerList[item];
+
+          if (val.title.match(/[a-zA-Z]/)) {
+            ret.push(val);
+          } else if (val.title === HOT_NAME) {
+            hot.push(val);
+          }
+        });
+
+        ret.sort((a, b) => a.title.charCodeAt(0) - b.title.charCodeAt(0));
+
+        return hot.concat(ret);
+      },
+    },
+  };
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
+  .singer-container
+    position: fixed
+    top: 88px
+    bottom: 0
+    width: 100%
 </style>

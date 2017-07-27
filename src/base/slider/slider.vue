@@ -58,6 +58,10 @@
         }, 60);
       });
     },
+    destroyed() {
+      clearTimeout(this.autoPlayTimer);
+      clearTimeout(this.resizeTimer);
+    },
     methods: {
       _setSliderWidth(resize) {
         this.children = this.$refs.sliderGroup.children;

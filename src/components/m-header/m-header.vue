@@ -22,7 +22,7 @@
     .icon
       display: inline-block
       vertical-align: top
-      margn-top: 6px
+      margin-top: 6px
       width: 30px
       height: 32px
       margin-right: 9px
