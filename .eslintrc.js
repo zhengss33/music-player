@@ -38,5 +38,6 @@ module.exports = {
     'guard-for-in': 'warn',
     'import/prefer-default-export': 'warn',
     'no-underscore-dangle': 0,
+    'no-param-reassign': 0,
   }
 }

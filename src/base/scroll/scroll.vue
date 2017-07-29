@@ -20,6 +20,10 @@
         type: Array,
         default: null,
       },
+      listenScroll: {
+        type: Boolean,
+        default: false,
+      },
     },
     mounted() {
       this.$nextTick(() => {
@@ -35,6 +39,12 @@
           probeType: this.probeType,
           click: this.click,
         });
+
+        if (this.listenScroll) {
+          this.scroll.on('scroll', (pos) => {
+            this.$emit('scroll', pos);
+          });
+        }
       },
       refresh() {
         if (this.scroll) {
