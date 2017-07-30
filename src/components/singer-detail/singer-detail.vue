@@ -1,24 +1,46 @@
 <template>
   <transition name="slide">
-    <div class="singer-detail"></div>
+    <music-list
+      :title="title"
+      :bgImge="bgImage"
+      :songs="songs"
+    >
+    </music-list>
   </transition>
 </template>
+
 <script type="text/ecmascript-6">
+  import MusicList from 'components/music-list/music-list';
   import { mapGetters } from 'vuex';
   import { getSingerDetail } from 'api/singer';
   import { ERR_OK } from 'api/config';
+  import { createSong } from 'common/js/format-song';
 
   export default {
+    data() {
+      return {
+        songs: [],
+      };
+    },
+    components: {
+      MusicList,
+    },
     created() {
-      this.getDetail();
+      this._getDetail();
     },
     computed: {
+      title() {
+        return this.singer.Fsinger_name;
+      },
+      bgImage() {
+        return this.singer.Fsinger_avatar;
+      },
       ...mapGetters([
         'singer',
       ]),
     },
     methods: {
-      getDetail() {
+      _getDetail() {
         const id = this.singer.Fsinger_mid;
         if (!id) {
           this.$router.push('/singer');
@@ -27,9 +49,20 @@
 
         getSingerDetail(id).then((res) => {
           if (res.code === ERR_OK) {
-            console.log(res);
+            const list = res.data.list;
+            this.songs = this._normalizeSongs(list);
           }
         });
+      },
+      _normalizeSongs(list) {
+        const ret = [];
+        list.forEach((song) => {
+          const { musicData } = song;
+          if (musicData.songid && musicData.albummid) {
+            ret.push(createSong(musicData));
+          }
+        });
+        return ret;
       },
     },
   };
@@ -39,12 +72,4 @@
     transition: all 0.3s
   .slide-enter, .slide-leave-to
     transform: translateX(100%);
-  .singer-detail
-    position: fixed
-    top: 0
-    left: 0
-    right: 0
-    bottom:0
-    z-index: 100
-    background: #222
 </style>
