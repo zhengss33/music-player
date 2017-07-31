@@ -17,7 +17,7 @@
     <scroll
       class="list"
       :data="songs"
-      ref="scroll"
+      ref="list"
       :probe-type="probeType"
       :listen-scroll="listenScroll"
       @scroll="scroll"
@@ -74,7 +74,7 @@
     mounted() {
       this.imageHeight = this.$refs.bgImage.clientHeight;
       this.minTransalteY = -this.imageHeight + RESERVED_HEIGHT;
-      this.$refs.scroll.$el.style = `top: ${this.imageHeight}px`;
+      this.$refs.list.$el.style.top = `${this.imageHeight}px`;
     },
     computed: {
       bgStyle() {
