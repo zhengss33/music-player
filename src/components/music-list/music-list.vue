@@ -11,7 +11,7 @@
           <span class="text">随机播放全部</span>
         </div>
       </div>
-      <div class="mask" ref="filter"></div>
+      <div class="mask" ref="mask"></div>
     </div>
     <div class="bg-layer" ref="bgLayer"></div>
     <scroll
@@ -107,7 +107,7 @@
 
         this.$refs.playBtn.style.display = btnDisplay;
         this.$refs.bgImage.style[transform] = `scale(${scale})`;
-        this.$refs.bgImage.style[backdrop] = `blur(${blur}px)`;
+        this.$refs.mask.style[backdrop] = `blur(${blur}px)`;
         this.$refs.bgImage.style['padding-top'] = paddingTop;
         this.$refs.bgImage.style['z-index'] = zIndex;
       },
