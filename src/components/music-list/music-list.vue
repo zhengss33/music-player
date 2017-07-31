@@ -1,12 +1,12 @@
 <template lang="html">
   <div class="music-list">
-    <div class="back">
+    <div class="back" @click="back">
       <i class="icon-back"></i>
     </div>
     <h1 class="title" v-html="title"></h1>
     <div class="bg-image" :style="bgStyle" ref="bgImage">
       <div class="play-wrapper">
-        <div class="play" ref="playBtn">
+        <div class="play" ref="playBtn" v-show="songs.length>0">
           <i class="icon-play"></i>
           <span class="text">随机播放全部</span>
         </div>
@@ -25,6 +25,9 @@
       <div class="song-list-container">
         <song-list :songs="songs"></song-list>
       </div>
+      <div class="loading-container" v-show="!songs.length">
+        <loading></loading>
+      </div>
     </scroll>
   </div>
 </template>
@@ -32,8 +35,12 @@
 <script>
   import Scroll from 'base/scroll/scroll';
   import SongList from 'base/song-list/song-list';
+  import Loading from 'base/loading/loading';
+  import { prefixStyle } from 'common/js/dom';
 
   const RESERVED_HEIGHT = 40;
+  const transform = prefixStyle('transform');
+  const backdrop = prefixStyle('backdrop-filter');
 
   export default {
     data() {
@@ -58,6 +65,7 @@
     components: {
       Scroll,
       SongList,
+      Loading,
     },
     created() {
       this.probeType = 3;
@@ -79,15 +87,27 @@
         let zIndex = 0;
         let paddingTop = '70%';
         let btnDisplay = '';
+        let scale = 1;
+        let blur = 0;
+        const percent = Math.abs(newY / this.imageHeight);
 
-        this.$refs.bgLayer.style.transform = `translateY(${translate}px)`;
-        this.$refs.bgLayer.style['webkit-transform'] = `translateY(${translate}px)`;
+        this.$refs.bgLayer.style[transform] = `translateY(${translate}px)`;
+
+        if (newY > 0) {
+          scale = 1 + percent;
+          zIndex = 10;
+        } else {
+          blur = Math.min(percent * 20, 20);
+        }
         if (newY < this.minTransalteY) {
           zIndex = 10;
           paddingTop = `${RESERVED_HEIGHT}px`;
           btnDisplay = 'none';
         }
+
         this.$refs.playBtn.style.display = btnDisplay;
+        this.$refs.bgImage.style[transform] = `scale(${scale})`;
+        this.$refs.bgImage.style[backdrop] = `blur(${blur}px)`;
         this.$refs.bgImage.style['padding-top'] = paddingTop;
         this.$refs.bgImage.style['z-index'] = zIndex;
       },
@@ -95,6 +115,9 @@
     methods: {
       scroll(pos) {
         this.scrollY = pos.y;
+      },
+      back() {
+        this.$router.back();
       },
     },
   };
@@ -183,4 +206,9 @@
       background: $color-background
       .song-list-container
         padding: 20px 30px
+      .loading-container
+        position: absolute
+        top: 50%
+        left: 50%
+        transform: translate(-50%, -50%)
 </style>

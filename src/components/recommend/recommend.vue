@@ -82,7 +82,7 @@
             this.playList = res.data.list;
           }
         }).catch((err) => {
-          console.log(err);
+          throw Error(err);
         });
       },
     },

@@ -40,7 +40,7 @@
             this.singerList = this._normalSingerList(res.data.list);
           }
         }).catch((err) => {
-          console.log(err);
+          throw Error(err);
         });
       },
       // 格式化数据
