@@ -135,6 +135,7 @@
       playIcon() {
         return this.playing ? 'icon-pause' : 'icon-play';
       },
+
       miniIcon() {
         return this.playing ? 'icon-pause-mini' : 'icon-play-mini';
       },
@@ -374,7 +375,7 @@
               right: 0
               left: 0
               z-index: 10
-              background-image: url('./cover.png')
+              background-image: url('../../common/images/cover.png')
               background-size: cover
             .cd
               position: absolute
