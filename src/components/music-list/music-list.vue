@@ -23,7 +23,7 @@
       @scroll="scroll"
     >
       <div class="song-list-container">
-        <song-list :songs="songs"></song-list>
+        <song-list @select="selectSong" :songs="songs"></song-list>
       </div>
       <div class="loading-container" v-show="!songs.length">
         <loading></loading>
@@ -37,6 +37,7 @@
   import SongList from 'base/song-list/song-list';
   import Loading from 'base/loading/loading';
   import { prefixStyle } from 'common/js/dom';
+  import { mapActions } from 'vuex';
 
   const RESERVED_HEIGHT = 40;
   const transform = prefixStyle('transform');
@@ -119,6 +120,15 @@
       back() {
         this.$router.back();
       },
+      selectSong(item, index) {
+        this.selectPlay({
+          list: this.songs,
+          index,
+        });
+      },
+      ...mapActions([
+        'selectPlay',
+      ]),
     },
   };
 </script>
