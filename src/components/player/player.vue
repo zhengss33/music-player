@@ -515,6 +515,7 @@
               animation: rotate 10s linear infinite
             &.pause
               animation-play-state: paused
+              -webkit-animation-play-state: paused
       .text
         display: flex
         flex-direction: column
