@@ -9,7 +9,7 @@ const playlist = state => state.playlist;
 
 const sequenceList = state => state.sequenceList;
 
-const playMode = state => state.playMode;
+const mode = state => state.mode;
 
 const currentIndex = state => state.currentIndex;
 
@@ -21,7 +21,7 @@ export {
   fullScreen,
   playlist,
   sequenceList,
-  playMode,
+  mode,
   currentIndex,
   currentSong,
 };
