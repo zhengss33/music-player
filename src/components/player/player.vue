@@ -23,8 +23,8 @@
         <div class="middle-l">
           <div class="cd-wrapper" ref="cdWrapper">
             <span class="cover"></span>
-            <div class="cd" :class="cdStateClass">
-              <img :src="currentSong.image" class="image">
+            <div class="cd" ref="cd">
+              <img ref="cdImg" :class="cdStateClass" :src="currentSong.image" class="image">
             </div>
           </div>
           <div class="playing-lyric-wrapper">
@@ -50,13 +50,13 @@
         <div class="progress-wrapper">
           <span class="time time-l">{{formatTime(this.currentTime)}}</span>
           <div class="progress-bar-wrapper">
-            <progress-bar :percent="percent"></progress-bar>
+            <progress-bar @percentChange="onProgressBarChange" :percent="percent"></progress-bar>
           </div>
           <span class="time time-r">{{formatTime(this.currentSong.duration)}}</span>
         </div>
         <div class="operators">
           <div class="icon i-left">
-            <i></i>
+            <i @click="changePlayMode" :class="modeIcon"></i>
           </div>
           <div class="icon i-left" :class="disableClass">
             <i @click="prevSong" class="icon-prev"></i>
@@ -78,8 +78,8 @@
     <transition name="mini">
       <div class="mini-player" v-show="!fullScreen" @click="openFullScreen">
         <div class="icon">
-          <div class="imgWrapper">
-            <img :class="cdStateClass" :src="currentSong.image" width="40" height="40">
+          <div class="imgWrapper" ref="minicd">
+            <img ref="miniImg" :class="cdStateClass" :src="currentSong.image" width="40" height="40">
           </div>
         </div>
         <div class="text">
@@ -87,7 +87,9 @@
           <p class="desc" v-html="currentSong.singer"></p>
         </div>
         <div class="control">
-          <i @click.stop="togglePlay" class="icon-mini" :class="miniIcon"></i>
+          <progress-circle :radius="32" :percent="percent">
+            <i @click.stop="togglePlay" class="icon-mini" :class="miniIcon"></i>
+          </progress-circle>
         </div>
         <div class="control">
           <i class="icon-playlist"></i>
@@ -100,15 +102,19 @@
       @canplay="readyPlay"
       @error="errorPlay"
       @timeupdate="updateTime"
+      @ended="end"
     ></audio>
   </div>
 </template>
 
 <script>
+  import ProgressBar from 'base/progress-bar/progress-bar';
+  import ProgressCircle from 'base/progress-circle/progress-circle';
   import { mapGetters, mapMutations } from 'vuex';
   import animations from 'create-keyframe-animation';
   import { prefixStyle } from 'common/js/dom';
-  import ProgressBar from 'base/progress-bar/progress-bar';
+  import { playMode } from 'common/js/config';
+  import { shuffle } from 'common/js/utils';
 
   const transform = prefixStyle('transform');
 
@@ -121,13 +127,14 @@
     },
     components: {
       ProgressBar,
+      ProgressCircle,
     },
     computed: {
       percent() {
         return this.currentTime / this.currentSong.duration;
       },
       cdStateClass() {
-        return this.playing ? 'play' : 'play pause';
+        return this.playing ? 'play' : 'pause';
       },
       disableClass() {
         return this.songReady ? '' : 'disable';
@@ -135,7 +142,18 @@
       playIcon() {
         return this.playing ? 'icon-pause' : 'icon-play';
       },
+      modeIcon() {
+        switch (this.mode) {
+          case playMode.sequence:
+            return 'icon-sequence';
 
+          case playMode.loop:
+            return 'icon-loop';
+
+          default:
+            return 'icon-random';
+        }
+      },
       miniIcon() {
         return this.playing ? 'icon-pause-mini' : 'icon-play-mini';
       },
@@ -145,12 +163,18 @@
         'currentSong',
         'playing',
         'currentIndex',
+        'mode',
+        'sequenceList',
       ]),
     },
     watch: {
-      currentSong() {
+      currentSong(song, oldSong) {
+        if (oldSong && oldSong.id === song.id) {
+          return;
+        }
         this.$nextTick(() => {
           this.$refs.audio.play();
+          song.getLyric();
         });
       },
       playing(newState) {
@@ -166,6 +190,33 @@
       },
     },
     methods: {
+      rotatePause() {
+        const cd = this.$refs.cd;
+        const cdImg = this.$refs.cdImg;
+        const minicd = this.$refs.minicd;
+        const miniImg = this.$refs.miniImg;
+        const getComputedStyle = window.getComputedStyle;
+        let parentTransform = 0;
+        let childTransform = 0;
+        let rotate = 0;
+
+        if (this.fullScreen) {
+          parentTransform = getComputedStyle(cd, null).transform;
+          childTransform = getComputedStyle(cdImg, null).transform;
+        } else {
+          parentTransform = getComputedStyle(minicd, null).transform;
+          childTransform = getComputedStyle(miniImg, null).transform;
+        }
+
+        if (parentTransform === 'none') {
+          rotate = childTransform;
+        } else {
+          rotate = childTransform.concat('', parentTransform);
+        }
+
+        cd.style[transform] = rotate;
+        minicd.style[transform] = rotate;
+      },
       goBack() {
         this.setFullScreen(false);
       },
@@ -173,7 +224,12 @@
         this.setFullScreen(true);
       },
       togglePlay() {
-        this.setPlayState(!this.playing);
+        if (this.playing) {
+          this.rotatePause();
+          this.setPlayState(false);
+        } else {
+          this.setPlayState(true);
+        }
       },
       prevSong() {
         if (!this.songReady) {
@@ -205,6 +261,17 @@
           this.togglePlay();
         }
       },
+      end() {
+        if (this.mode === playMode.loop) {
+          this.loop();
+        } else {
+          this.nextSong();
+        }
+      },
+      loop() {
+        this.$refs.audio.currentTime = 0;
+        this.$refs.audio.play();
+      },
       readyPlay() {
         this.songReady = true;
       },
@@ -219,6 +286,31 @@
         const minute = Math.floor(time / 60);
         const second = this._pad(Math.floor(time % 60));
         return `${minute}:${second}`;
+      },
+      changePlayMode() {
+        const mode = (this.mode + 1) % 3;
+        let list = this.sequenceList;
+
+        if (mode === playMode.random) {
+          list = shuffle(list);
+        }
+
+        this.resetCurrentIndex(list);
+        this.setPlayMode(mode);
+        this.setPlayList(list);
+      },
+      resetCurrentIndex(list) {
+        const index = list.findIndex(song => song.id === this.currentSong.id);
+        this.setCurrentIndex(index);
+      },
+      onProgressBarChange(percent) {
+        const currentTime = this.currentSong.duration * percent;
+        this.$refs.audio.currentTime = currentTime;
+        this.currentTime = currentTime;
+
+        if (!this.playing) {
+          this.togglePlay();
+        }
       },
       enter(el, done) {
         const { x, y, scale } = this._getPosAndScale();
@@ -293,6 +385,8 @@
         setFullScreen: 'SET_FULL_SCREEN',
         setPlayState: 'SET_PLAYING_STATE',
         setCurrentIndex: 'SET_CURRENT_INDEX',
+        setPlayMode: 'SET_PLAY_MODE',
+        setPlayList: 'SET_PLAYLIST',
       }),
     },
   };
@@ -354,6 +448,7 @@
         bottom: 170px
         white-space: nowrap
         font-size: 0
+        overflow: hidden
         .middle-l
           display: inline-block
           position: relative
@@ -385,17 +480,15 @@
               height: 80%
               border-radius: 50%
               overflow: hidden
-              &.play
-                animation: rotate 20s linear infinite
-              &.pause
-                animation-play-state: paused
               .image
                 width: 100%
                 height: 100%
                 box-sizing: border-box
                 border-radius: 50%
-              .play
-                animation: rotate 20s linear infinte
+                &.play
+                  animation: rotate 20s linear infinite
+                &.pause
+                  animation: none !important
         .middle-r
           display: inline-block
           width: 100%
@@ -512,10 +605,9 @@
           img
             border-radius: 50%
             &.play
-              animation: rotate 10s linear infinite
+              animation: rotate 20s linear infinite
             &.pause
-              animation-play-state: paused
-              -webkit-animation-play-state: paused
+              animation: none !important
       .text
         display: flex
         flex-direction: column
@@ -540,6 +632,9 @@
           font-size: 30px
           color: $color-theme-d
         .icon-mini
+          position: absolute
+          top: 0
+          left: 0
           font-size: 32px
 
   @keyframes rotate
