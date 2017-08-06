@@ -53,7 +53,7 @@
       },
       scrollTo(...args) {
         if (this.scroll) {
-          this.scroll.scroll(...args);
+          this.scroll.scrollTo(this.scroll, ...args);
         }
       },
       scrollToElement(...args) {
