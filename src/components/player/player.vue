@@ -317,7 +317,6 @@
 
         if (this.currentLyric) {
           this.currentLyric.seek(0);
-          console.log('seek');
         }
       },
       readyPlay() {
