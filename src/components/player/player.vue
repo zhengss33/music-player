@@ -32,7 +32,7 @@
             </div>
           </div>
           <div class="playing-lyric-wrapper">
-            <div class="playing-lyric"></div>
+            <div class="playing-lyric">{{playingLyric}}</div>
           </div>
         </div>
 
@@ -144,6 +144,7 @@
         currentLyric: null,
         currentLineNum: 0,
         currentShow: 'cd',
+        playingLyric: '',
       };
     },
     components: {
@@ -197,10 +198,15 @@
         if (oldSong && oldSong.id === song.id) {
           return;
         }
-        this.$nextTick(() => {
+
+        if (this.currentLyric) {
+          this.currentLyric.stop();
+        }
+
+        setTimeout(() => {
           this.$refs.audio.play();
           this.getLyric();
-        });
+        }, 1000);
       },
       playing(newState) {
         this.$nextTick(() => {
@@ -255,20 +261,28 @@
         } else {
           this.setPlayState(true);
         }
+
+        if (this.currentLyric) {
+          this.currentLyric.togglePlay();
+        }
       },
       prevSong() {
         if (!this.songReady) {
           return;
         }
 
-        let index = this.currentIndex - 1;
-        if (index < 0) {
-          index = this.playlist.length - 1;
-        }
-        this.setCurrentIndex(index);
-        this.songReady = false;
-        if (!this.playing) {
-          this.togglePlay();
+        if (this.playlist.length === 1) {
+          this.loop();
+        } else {
+          let index = this.currentIndex - 1;
+          if (index < 0) {
+            index = this.playlist.length - 1;
+          }
+          this.setCurrentIndex(index);
+          this.songReady = false;
+          if (!this.playing) {
+            this.togglePlay();
+          }
         }
       },
       nextSong() {
@@ -276,14 +290,18 @@
           return;
         }
 
-        let index = this.currentIndex + 1;
-        if (index > this.playlist.length - 1) {
-          index = 0;
-        }
-        this.setCurrentIndex(index);
-        this.songReady = false;
-        if (!this.playing) {
-          this.togglePlay();
+        if (this.playlist.length === 1) {
+          this.loop();
+        } else {
+          let index = this.currentIndex + 1;
+          if (index > this.playlist.length - 1) {
+            index = 0;
+          }
+          this.setCurrentIndex(index);
+          this.songReady = false;
+          if (!this.playing) {
+            this.togglePlay();
+          }
         }
       },
       end() {
@@ -296,6 +314,11 @@
       loop() {
         this.$refs.audio.currentTime = 0;
         this.$refs.audio.play();
+
+        if (this.currentLyric) {
+          this.currentLyric.seek(0);
+          console.log('seek');
+        }
       },
       readyPlay() {
         this.songReady = true;
@@ -336,6 +359,10 @@
         if (!this.playing) {
           this.togglePlay();
         }
+
+        if (this.currentLyric) {
+          this.currentLyric.seek(currentTime * 1000);
+        }
       },
       getLyric() {
         this.currentSong.getLyric().then((lyric) => {
@@ -343,9 +370,13 @@
           if (this.playing) {
             this.currentLyric.play();
           }
+        }).catch(() => {
+          this.currentLyric = null;
+          this.playingLyric = '';
+          this.currentLineNum = 0;
         });
       },
-      handleLyric({ lineNum }) {
+      handleLyric({ lineNum, txt }) {
         this.currentLineNum = lineNum;
 
         if (lineNum > 5) {
@@ -354,6 +385,7 @@
         } else {
           this.$refs.lyricList.scrollTo(0, 0, 1000);
         }
+        this.playingLyric = txt;
       },
       touchStart(e) {
         this.touch.initialed = true;
@@ -584,6 +616,16 @@
                   animation: rotate 20s linear infinite
                 &.pause
                   animation: none !important
+          .playing-lyric-wrapper
+            width: 80%
+            margin: 30px auto 0 auto
+            overflow: hidden
+            text-align: center
+            .playing-lyric
+              height: 20px
+              line-height: 20px
+              font-size: $font-size-medium
+              color: $color-text-l
         .middle-r
           display: inline-block
           width: 100%
@@ -611,6 +653,7 @@
         bottom: 50px
         width: 100%
         .dot-wrapper
+          margin-bottom: 10px
           text-align: center
           font-size: 0
           .dot

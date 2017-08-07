@@ -51,11 +51,13 @@
           this.scroll.refresh();
         }
       },
-      scrollTo(...args) {
+      /* eslint-disable */
+      scrollTo() {
         if (this.scroll) {
-          this.scroll.scrollTo(this.scroll, ...args);
+          this.scroll.scrollTo.apply(this.scroll, arguments);
         }
       },
+      /* eslint-disable */
       scrollToElement(...args) {
         if (this.scroll) {
           this.scroll.scrollToElement(...args);

@@ -38,12 +38,14 @@
   import Loading from 'base/loading/loading';
   import { prefixStyle } from 'common/js/dom';
   import { mapActions } from 'vuex';
+  import { playListMixin } from 'common/js/mixin';
 
   const RESERVED_HEIGHT = 40;
   const transform = prefixStyle('transform');
   const backdrop = prefixStyle('backdrop-filter');
 
   export default {
+    mixins: [playListMixin],
     data() {
       return {
         scrollY: 0,
@@ -114,6 +116,12 @@
       },
     },
     methods: {
+      handlePlayList(newList) {
+        const bottom = newList.length > 0 ? '60px' : '';
+
+        this.$refs.list.$el.style.bottom = bottom;
+        this.$refs.list.refresh();
+      },
       scroll(pos) {
         this.scrollY = pos.y;
       },
