@@ -12,8 +12,8 @@
         <h2 class="list-group-title">{{group.title}}</h2>
         <ul>
           <li @click="selectItem(item)" class="list-group-item" v-for="item in group.items">
-            <img class="avatar" v-lazy="item.Fsinger_avatar">
-            <span class="name">{{item.Fsinger_name}}</span>
+            <img class="avatar" v-lazy="item.avatar">
+            <span class="name">{{item.name}}</span>
           </li>
         </ul>
       </li>

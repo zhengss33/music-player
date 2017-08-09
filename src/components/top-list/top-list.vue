@@ -1,18 +1,13 @@
-<template>
+<template lang="html">
   <transition name="slide">
-    <music-list
-      :title="title"
-      :bgImage="bgImage"
-      :songs="songs"
-    >
-    </music-list>
+    <music-list :rank="true" :title="title" :bgImage="bgImage" :songs="songs"></music-list>
   </transition>
 </template>
 
-<script type="text/ecmascript-6">
+<script>
   import MusicList from 'components/music-list/music-list';
   import { mapGetters } from 'vuex';
-  import { getSingerDetail } from 'api/singer';
+  import { getTopSongs } from 'api/rank';
   import { ERR_OK } from 'api/config';
   import { createSong } from 'common/js/format-song';
 
@@ -26,39 +21,38 @@
       MusicList,
     },
     created() {
-      this._getDetail();
+      this._getTopSongs();
     },
     computed: {
       title() {
-        return this.singer.name;
+        return this.toplist.topTitle;
       },
       bgImage() {
-        return this.singer.avatar;
+        return this.songs.length > 0 ? this.songs[0].image : '';
       },
       ...mapGetters([
-        'singer',
+        'toplist',
       ]),
     },
     methods: {
-      _getDetail() {
-        const id = this.singer.mid;
-        if (!id) {
-          this.$router.push('/singer');
+      _getTopSongs() {
+        if (!this.toplist.id) {
+          this.$router.push('/rank');
           return;
         }
 
-        getSingerDetail(id).then((res) => {
+        getTopSongs(this.toplist.id).then((res) => {
           if (res.code === ERR_OK) {
-            const list = res.data.list;
-            this.songs = this._normalizeSongs(list);
+            this.songs = this._normalizeList(res.songlist);
           }
         });
       },
-      _normalizeSongs(list) {
+      _normalizeList(list) {
         const ret = [];
+
         list.forEach((song) => {
-          const { musicData } = song;
-          if (musicData.songid && musicData.albummid) {
+          const musicData = song.data;
+          if (musicData.albummid && musicData.songid) {
             ret.push(createSong(musicData));
           }
         });
@@ -67,9 +61,11 @@
     },
   };
 </script>
-<style scoped lang="stylus" rel="stylesheel/stylus">
+
+<style lang="stylus" scoped>
   .slide-enter-active, .slide-leave-active
     transition: all 0.3s ease
+
   .slide-enter, .slide-leave-to
-    transform: translateX(100%);
+    transform: translateX(100%)
 </style>

@@ -23,7 +23,7 @@
       @scroll="scroll"
     >
       <div class="song-list-container">
-        <song-list @select="selectSong" :songs="songs"></song-list>
+        <song-list :rank="rank" @select="selectSong" :songs="songs"></song-list>
       </div>
       <div class="loading-container" v-show="!songs.length">
         <loading></loading>
@@ -56,13 +56,17 @@
         type: String,
         default: '',
       },
-      bgImge: {
+      bgImage: {
         type: String,
         default: '',
       },
       songs: {
         type: Array,
         default: () => [],
+      },
+      rank: {
+        type: Boolean,
+        default: false,
       },
     },
     components: {
@@ -81,7 +85,7 @@
     },
     computed: {
       bgStyle() {
-        return `background-image: url(${this.bgImge});`;
+        return `background-image: url(${this.bgImage});`;
       },
     },
     watch: {
