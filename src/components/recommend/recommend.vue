@@ -16,7 +16,12 @@
         <div class="recommend-list">
           <h1 class="list-title">热门歌单推荐</h1>
           <ul>
-            <li class="list-item" v-for="item in playList" :key="item.dissid">
+            <li
+              class="list-item"
+              v-for="item in playList"
+              :key="item.dissid"
+              @click="selectItem(item)"
+            >
               <div class="pic">
                 <img v-lazy="item.imgurl">
               </div>
@@ -32,6 +37,7 @@
         <loading></loading>
       </div>
     </scroll>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -42,6 +48,7 @@
   import { ERR_OK } from 'api/config';
   import Slider from 'base/slider/slider';
   import { playListMixin } from 'common/js/mixin';
+  import { mapMutations } from 'vuex';
 
   export default{
     mixins: [playListMixin],
@@ -93,6 +100,15 @@
           throw Error(err);
         });
       },
+      selectItem(item) {
+        this.$router.push({
+          path: `/recommend/${item.dissid}`,
+        });
+        this.setDisc(item);
+      },
+      ...mapMutations({
+        setDisc: 'SET_DISC',
+      }),
     },
   };
 </script>
@@ -101,56 +117,62 @@
   @import "~common/stylus/variable"
 
   .recommend
-    position: relative
-    .slider-wrapper
-      position: relative
-      width: 100%
-      height: 0
-      padding-top: 40%
+    position: fixed
+    width: 100%
+    top: 88px
+    bottom: 0
+    .recommend-content
+      height: 100%
       overflow: hidden
-      .slider-content
-        position: absolute
-        top: 0
-        left: 0
+      .slider-wrapper
+        position: relative
         width: 100%
-        height: 100%
-    .recommend-list
-      .list-title
-        height: 65px
-        line-height: 65px
-        text-align: center
-        font-size: $font-size-medium
-        color: $color-theme
-      .list-item
-        display: flex
-        box-sizing: border-box
-        padding: 0 20px 20px 20px
-        .pic
-          flex: 0 0 60px
-          width: 60px
-          height: 60px
-          padding-right: 20px
-          img
-            display: block
-            width: 100%
-            height: 100%
-        .text
-          display: flex
-          flex-direction: column
-          justify-content: center
-          flex: 1
-          line-height: 20px
-          overflow: hidden
+        height: 0
+        padding-top: 40%
+        overflow: hidden
+        .slider-content
+          position: absolute
+          top: 0
+          left: 0
+          width: 100%
+          height: 100%
+      .recommend-list
+        .list-title
+          height: 65px
+          line-height: 65px
+          text-align: center
           font-size: $font-size-medium
-          .desc
-            margin-bottom: 10px
-            color: $color-text
-          .creator
-            color: $color-text-d
-            font-size: $font-size-small
-    .loading-container
-      position: absolute
-      top: 50%
-      left: 50%
-      transform: translate(-50%,-50%)
+          color: $color-theme
+        .list-item
+          display: flex
+          box-sizing: border-box
+          padding: 0 20px 20px 20px
+          .pic
+            flex: 0 0 60px
+            width: 60px
+            height: 60px
+            padding-right: 20px
+            img
+              display: block
+              width: 100%
+              height: 100%
+          .text
+            display: flex
+            flex-direction: column
+            justify-content: center
+            flex: 1
+            line-height: 20px
+            overflow: hidden
+            font-size: $font-size-medium
+            .desc
+              margin-bottom: 10px
+              color: $color-text
+            .creator
+              color: $color-text-d
+              font-size: $font-size-small
+      .loading-container
+        position: absolute
+        top: 50%
+        left: 50%
+        transform: translate(-50%,-50%)
 </style>
