@@ -38,7 +38,7 @@
       },
       selectSinger(singer) {
         this.$router.push({
-          path: `/singer/${singer.Fsinger_mid}`,
+          path: `/singer/${singer.mid}`,
         });
         this.setSinger(singer);
       },

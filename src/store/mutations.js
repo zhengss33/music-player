@@ -22,6 +22,15 @@ const mutations = {
   [types.SET_CURRENT_INDEX](state, index) {
     state.currentIndex = index;
   },
+  [types.SET_DISC](state, disc) {
+    state.disc = disc;
+  },
+  [types.SET_TOP_LIST](state, list) {
+    state.toplist = list;
+  },
+  [types.SET_SEARCH_HISTORY](state, query) {
+    state.searchHistory = query;
+  },
 };
 
 export default mutations;

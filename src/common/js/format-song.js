@@ -32,9 +32,10 @@ export default class Song {
   }
 }
 
-export function filterSinger(singers) {
+function filterSinger(singers) {
   const ret = [];
   if (!singers) { return ''; }
+
   singers.forEach((singer) => {
     ret.push(singer.name);
   });

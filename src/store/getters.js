@@ -15,6 +15,12 @@ const currentIndex = state => state.currentIndex;
 
 const currentSong = state => state.playlist[state.currentIndex];
 
+const disc = state => state.disc;
+
+const toplist = state => state.toplist;
+
+const searchHistory = state => state.searchHistory;
+
 export {
   singer,
   playing,
@@ -24,4 +30,7 @@ export {
   mode,
   currentIndex,
   currentSong,
+  disc,
+  toplist,
+  searchHistory,
 };

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { commonParams } from './config';
 
+/* eslint-disable */
 export function getLyric(mid) {
   const url = 'api/getLyric';
 
@@ -18,3 +19,4 @@ export function getLyric(mid) {
     params: data,
   }).then(res => Promise.resolve(res.data));
 }
+/* eslint-disable */

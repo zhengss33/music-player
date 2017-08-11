@@ -1,5 +1,6 @@
 import { mapGetters } from 'vuex';
 
+/* eslint-disable */
 export const playListMixin = {
   mounted() {
     this.handlePlayList(this.sequenceList);
@@ -23,3 +24,4 @@ export const playListMixin = {
     },
   },
 };
+/* eslint-disable */

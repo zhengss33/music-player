@@ -24,6 +24,14 @@
         type: Boolean,
         default: false,
       },
+      pullupRefresh: {
+        type: Boolean,
+        default: false,
+      },
+      listenBeforeScroll: {
+        type: Boolean,
+        default: false,
+      },
     },
     mounted() {
       this.$nextTick(() => {
@@ -43,6 +51,20 @@
         if (this.listenScroll) {
           this.scroll.on('scroll', (pos) => {
             this.$emit('scroll', pos);
+          });
+        }
+
+        if (this.pullupRefresh) {
+          this.scroll.on('scrollEnd', () => {
+            if (this.scroll.y <= this.scroll.maxScrollY + 50) {
+              this.$emit('scrollToEnd');
+            }
+          });
+        }
+
+        if (this.listenBeforeScroll) {
+          this.scroll.on('beforeScroll', () => {
+            this.$emit('beforeScroll');
           });
         }
       },
