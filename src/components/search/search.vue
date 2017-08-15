@@ -3,7 +3,7 @@
     <div class="search-box-wrapper">
       <search-box ref="searchBox" @queryChange="onQueryChange"></search-box>
     </div>
-    <div class="shortcut-wrapper" v-show="!query">
+    <div ref="shortcutWrap" class="shortcut-wrapper" v-show="!query">
       <scroll ref="shortcut" class="shortcut" :data="shortcut">
         <div>
           <div class="hot-key">
@@ -28,8 +28,8 @@
         </div>
       </scroll>
     </div>
-    <div class="search-result" v-show="query">
-      <suggest @select="saveHistory" @listScroll="inputBlur" :query="query"></suggest>
+    <div ref="searchResult" class="search-result" v-show="query">
+      <suggest ref="suggest" @select="saveHistory" @listScroll="inputBlur" :query="query"></suggest>
     </div>
     <comfirm
       :isShow="isComfirmShow"
@@ -52,8 +52,10 @@
   import { getHotKey } from 'api/search';
   import { ERR_OK } from 'api/config';
   import { mapActions, mapGetters } from 'vuex';
+  import { playListMixin } from 'common/js/mixin';
 
   export default{
+    mixins: [playListMixin],
     data() {
       return {
         hotkey: [],
@@ -89,6 +91,15 @@
       },
     },
     methods: {
+      handlePlayList(list) {
+        const bottom = list.length > 0 ? '60px' : '';
+
+        this.$refs.shortcutWrap.style.bottom = bottom;
+        this.$refs.searchResult.style.bottom = bottom;
+
+        this.$refs.shortcut.refresh();
+        this.$refs.suggest.refresh();
+      },
       onQueryChange(query) {
         this.query = query;
       },

@@ -101,6 +101,9 @@
       listScroll() {
         this.$emit('listScroll');
       },
+      refresh() {
+        this.$refs.suggest.refresh();
+      },
       _search() {
         this.page = 1;
         this.hasMore = true;

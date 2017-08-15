@@ -38,8 +38,10 @@ export const randomPlay = function randomPlay({ commit }, { list }) {
 };
 
 export const insertSong = function insertSong({ commit, state }, song) {
-  const playlist = state.playlist.slice();
-  const sequenceList = state.sequenceList.slice();
+  /* eslint-disable */
+  let playlist = state.playlist.slice();
+  let sequenceList = state.sequenceList.slice();
+  /* eslint-disable */
   let currentIndex = state.currentIndex;
   const currentSong = playlist[currentIndex];
 
@@ -92,4 +94,32 @@ export const deleteSearchHistory = function deleteSearchHistory({ commit }, quer
 
 export const clearSearchHistory = function clearSearchHistory({ commit }) {
   commit(types.SET_SEARCH_HISTORY, clearSearch());
+};
+
+export const deleteSong = function deleteSong({ commit, state }, song) {
+  /* eslint-disable */
+  let playList = state.playlist.slice();
+  let sequenceList = state.sequenceList.slice();
+  /* eslint-disable */
+  let currentIndex = state.currentIndex;
+
+  const fpIndex = playList.findIndex(item => item.id === song.id);
+  playList.splice(fpIndex, 1);
+
+  const fsIndex = sequenceList.findIndex(item => item.id === song.id);
+  sequenceList.splice(fsIndex, 1);
+
+  if (currentIndex > fpIndex || currentIndex === playList.length) {
+    currentIndex -= 1;
+  }
+
+  if (!playList.length) {
+    commit(types.SET_PLAYING_STATE, false);
+  } else {
+    commit(types.SET_PLAYING_STATE, true);
+  }
+
+  commit(types.SET_PLAYLIST, playList);
+  commit(types.SET_SEQUENCE_LIST, sequenceList);
+  commit(types.SET_CURRENT_INDEX, currentIndex);
 };

@@ -107,10 +107,11 @@
           </progress-circle>
         </div>
         <div class="control">
-          <i class="icon-playlist"></i>
+          <i class="icon-playlist" @click.stop="showPlayList"></i>
         </div>
       </div>
     </transition>
+    <play-list ref="playList"></play-list>
     <audio
       :src="currentSong.url"
       ref="audio"
@@ -126,6 +127,7 @@
   import ProgressBar from 'base/progress-bar/progress-bar';
   import ProgressCircle from 'base/progress-circle/progress-circle';
   import Scroll from 'base/scroll/scroll';
+  import PlayList from 'components/playlist/playlist';
   import { mapGetters, mapMutations } from 'vuex';
   import animations from 'create-keyframe-animation';
   import { prefixStyle } from 'common/js/dom';
@@ -151,6 +153,7 @@
       ProgressBar,
       ProgressCircle,
       Scroll,
+      PlayList,
     },
     created() {
       this.touch = {};
@@ -195,6 +198,10 @@
     },
     watch: {
       currentSong(song, oldSong) {
+        if (!song.id) {
+          return;
+        }
+
         if (oldSong && oldSong.id === song.id) {
           return;
         }
@@ -209,6 +216,10 @@
         }, 1000);
       },
       playing(newState) {
+        if (!this.currentSong) {
+          return;
+        }
+
         this.$nextTick(() => {
           const audio = this.$refs.audio;
 
@@ -480,6 +491,9 @@
       afterLeave() {
         this.$refs.cdWrapper.style.transition = '';
         this.$refs.cdWrapper.style[transform] = '';
+      },
+      showPlayList() {
+        this.$refs.playList.show();
       },
       _pad(num, n = 2) {
         let len = num.toString().length;
