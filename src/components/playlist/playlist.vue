@@ -4,16 +4,16 @@
       <div class="list-wrapper" @click.stop>
         <div class="list-header">
           <h1 class="title">
-            <i class="icon"></i>
-            <span class="text"></span>
-            <span class="clear">
+            <i class="icon" :class="modeIcon" @click="changePlayMode"></i>
+            <span class="text">{{modeText}}</span>
+            <span class="clear" @click.stop="showConfirm">
               <i class="icon-clear"></i>
             </span>
           </h1>
         </div>
         <scroll ref="listContent" :data="sequenceList" class="list-content">
-          <ul>
-            <li class="item" ref="list" v-for="(song, index) in sequenceList" @click="selectItem(song, index)">
+          <transition-group name="list" tag="ul">
+            <li class="item" ref="list" v-for="(song, index) in sequenceList" :key="song.id" @click="selectItem(song, index)">
               <i class="current" :class="getCurrentIcon(song)"></i>
               <span class="text">{{song.name}}</span>
               <span class="like">
@@ -23,47 +23,77 @@
                 <i class="icon-delete"></i>
               </span>
             </li>
-          </ul>
+          </transition-group>
         </scroll>
         <div class="list-operate">
-          <div class="add">
+          <div class="add" @click="showAddSong">
             <i class="icon-add"></i>
-            <span class="text"></span>
+            <span class="text">添加歌曲到列表</span>
           </div>
         </div>
         <div class="list-close" @click="hide">
           <span>关闭</span>
         </div>
       </div>
+      <AddSong :showFlag="isAddSongShow" @hide="hideAddSong"></AddSong>
+      <confirm
+        title="是否清空播放列表"
+        confirmBtnText="清空"
+        :isShow="isConfirmShow"
+        @confirm="clearSongList"
+        @cancel="hideConfirm"
+      ></confirm>
     </div>
   </transition>
 </template>
 
 <script>
 import Scroll from 'base/scroll/scroll';
+import Confirm from 'base/confirm/confirm';
+import AddSong from 'components/add-song/add-song';
 import { mapGetters, mapMutations, mapActions } from 'vuex';
 import { playMode } from 'common/js/config';
+import { playerMixin } from 'common/js/mixin';
 
 export default {
+  mixins: [playerMixin],
   data() {
     return {
       isShow: false,
+      isConfirmShow: false,
+      isAddSongShow: false,
     };
   },
   components: {
     Scroll,
+    Confirm,
+    AddSong,
   },
   computed: {
+    modeText() {
+      let text = '';
+      switch (this.mode) {
+        case playMode.sequence:
+          text = '顺序播放';
+          break;
+
+        case playMode.loop:
+          text = '循环播放';
+          break;
+
+        default:
+          text = '随机播放';
+          break;
+      }
+      return text;
+    },
     ...mapGetters([
-      'sequenceList',
-      'mode',
       'playlist',
-      'currentSong',
     ]),
   },
   watch: {
     currentSong(newSong, oldSong) {
-      if (!this.isShow || newSong.id === oldSong.id) {
+      if (!this.isShow || !newSong || newSong.id === oldSong.id) {
         return;
       }
       this.scrollToCurrent();
@@ -91,20 +121,36 @@ export default {
       this.setCurrentIndex(currentIndex);
       this.setPlayingState(true);
     },
+    deleteItem(song) {
+      this.deleteSong(song);
+    },
+    clearSongList() {
+      this.deleteSongList();
+      this.hideConfirm();
+    },
     scrollToCurrent() {
       const index = this.sequenceList.findIndex(item => this.currentSong.id === item.id);
       const currentEl = this.$refs.list[index];
       this.$refs.listContent.scrollToElement(currentEl, 300);
     },
-    deleteItem(song) {
-      this.deleteSong(song);
+    showConfirm() {
+      this.isConfirmShow = true;
+    },
+    hideConfirm() {
+      this.isConfirmShow = false;
+    },
+    showAddSong() {
+      this.isAddSongShow = true;
+    },
+    hideAddSong() {
+      this.isAddSongShow = false;
     },
     ...mapMutations({
-      setCurrentIndex: 'SET_CURRENT_INDEX',
       setPlayingState: 'SET_PLAYING_STATE',
     }),
     ...mapActions([
       'deleteSong',
+      'deleteSongList',
     ]),
   },
 };
@@ -114,24 +160,6 @@ export default {
   @import "~common/stylus/variable";
   @import "~common/stylus/mixin";
 
-  .list-fade-enter-active, .list-fade-leave-active
-    .playlist
-      transition: opacity 0.3s
-      .list-wrapper
-        transition: all 0.3s
-        .list-content
-          .item
-            transition: all 0.1s
-  .list-fade-enter, .list-fade-leave-to
-    .playlist
-      opacity: 0
-      .list-wrapper
-        transform: translateY(100%)
-        .list-content
-          .item
-            height: 0
-
-
   .playlist
     position: fixed
     left: 0
@@ -140,6 +168,15 @@ export default {
     bottom: 0
     z-index: 200
     background-color: $color-background-d
+    &.list-fade-enter-active, &.list-fade-leave-active
+      transition: opacity 0.3s
+      .list-wrapper
+        transition: all 0.3s
+    &.list-fade-enter, &.list-fade-leave-to
+      opacity: 0
+      .list-wrapper
+        transform: translate3d(0, 100%, 0)
+    &.list-fade-enter
     .list-wrapper
       position: absolute
       left: 0
@@ -175,6 +212,10 @@ export default {
           height: 40px
           padding: 0 30px 0 20px
           overflow: hidden
+          &.list-enter-active, &.list-leave-active
+            transition: all 0.1s
+          &.list-enter, &.list-leave-to
+            height: 0
           .current
             flex: 0 0 20px
             width: 20px

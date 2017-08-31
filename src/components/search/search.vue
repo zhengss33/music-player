@@ -17,7 +17,7 @@
           <div class="search-history" v-show="this.searchHistory.length">
             <h1 class="title">
               <span class="text">搜索历史</span>
-              <span class="clear" @click="comfirmShow"><i class="icon-clear"></i></span>
+              <span class="clear" @click="confirmShow"><i class="icon-clear"></i></span>
             </h1>
             <search-list
               :searches="searchHistory"
@@ -31,14 +31,14 @@
     <div ref="searchResult" class="search-result" v-show="query">
       <suggest ref="suggest" @select="saveHistory" @listScroll="inputBlur" :query="query"></suggest>
     </div>
-    <comfirm
-      :isShow="isComfirmShow"
+    <confirm
+      :isShow="isConfirmShow"
       title="是否清理搜索历史"
-      comfirmBtnText="清空"
+      confirmBtnText="清空"
       cancelBtnText="取消"
       @cancel="cancelHandle"
-      @comfirm="clearSearch"
-    ></comfirm>
+      @confirm="clearSearch"
+    ></confirm>
     <router-view></router-view>
   </div>
 </template>
@@ -47,27 +47,26 @@
   import Suggest from 'components/suggest/suggest';
   import SearchBox from 'base/search-box/search-box';
   import SearchList from 'base/search-list/search-list';
-  import Comfirm from 'base/comfirm/comfirm';
+  import Confirm from 'base/confirm/confirm';
   import Scroll from 'base/scroll/scroll';
   import { getHotKey } from 'api/search';
   import { ERR_OK } from 'api/config';
-  import { mapActions, mapGetters } from 'vuex';
-  import { playListMixin } from 'common/js/mixin';
+  import { mapActions } from 'vuex';
+  import { playListMixin, searchMixin } from 'common/js/mixin';
 
   export default{
-    mixins: [playListMixin],
+    mixins: [playListMixin, searchMixin],
     data() {
       return {
         hotkey: [],
-        query: '',
-        isComfirmShow: false,
+        isConfirmShow: false,
       };
     },
     components: {
       SearchBox,
       Suggest,
       SearchList,
-      Comfirm,
+      Confirm,
       Scroll,
     },
     created() {
@@ -77,9 +76,6 @@
       shortcut() {
         return this.hotkey.concat(this.searchHistory);
       },
-      ...mapGetters([
-        'searchHistory',
-      ]),
     },
     watch: {
       query(newquery) {
@@ -100,30 +96,15 @@
         this.$refs.shortcut.refresh();
         this.$refs.suggest.refresh();
       },
-      onQueryChange(query) {
-        this.query = query;
-      },
-      addQuery(query) {
-        this.$refs.searchBox.setQuery(query);
-      },
-      inputBlur() {
-        this.$refs.searchBox.blur();
-      },
-      saveHistory() {
-        this.setSearchHistory(this.query);
-      },
-      deleteHistory(item) {
-        this.deleteSearchHistory(item);
-      },
       clearSearch() {
         this.clearSearchHistory();
-        this.isComfirmShow = false;
+        this.isConfirmShow = false;
       },
-      comfirmShow() {
-        this.isComfirmShow = true;
+      confirmShow() {
+        this.isConfirmShow = true;
       },
       cancelHandle() {
-        this.isComfirmShow = false;
+        this.isConfirmShow = false;
       },
       _getHotKey() {
         getHotKey().then((res) => {
@@ -133,8 +114,6 @@
         });
       },
       ...mapActions([
-        'setSearchHistory',
-        'deleteSearchHistory',
         'clearSearchHistory',
       ]),
     },

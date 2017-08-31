@@ -132,13 +132,14 @@
   import animations from 'create-keyframe-animation';
   import { prefixStyle } from 'common/js/dom';
   import { playMode } from 'common/js/config';
-  import { shuffle } from 'common/js/utils';
   import Lyric from 'lyric-parser';
+  import { playerMixin } from 'common/js/mixin';
 
   const transform = prefixStyle('transform');
   const transitionDuration = prefixStyle('transitionDuration');
 
   export default {
+    mixins: [playerMixin],
     data() {
       return {
         songReady: false,
@@ -171,34 +172,19 @@
       playIcon() {
         return this.playing ? 'icon-pause' : 'icon-play';
       },
-      modeIcon() {
-        switch (this.mode) {
-          case playMode.sequence:
-            return 'icon-sequence';
-
-          case playMode.loop:
-            return 'icon-loop';
-
-          default:
-            return 'icon-random';
-        }
-      },
       miniIcon() {
         return this.playing ? 'icon-pause-mini' : 'icon-play-mini';
       },
       ...mapGetters([
         'fullScreen',
         'playlist',
-        'currentSong',
         'playing',
         'currentIndex',
-        'mode',
-        'sequenceList',
       ]),
     },
     watch: {
       currentSong(song, oldSong) {
-        if (!song.id) {
+        if (!song || !song.id) {
           return;
         }
 
@@ -208,9 +194,13 @@
 
         if (this.currentLyric) {
           this.currentLyric.stop();
+          this.currentLyric = null;
+          this.currentTime = 0;
+          this.playingLyric = '';
+          this.currentLineNum = 0;
         }
 
-        setTimeout(() => {
+        this.$nextTick(() => {
           this.$refs.audio.play();
           this.getLyric();
         }, 1000);
@@ -344,22 +334,6 @@
         const minute = Math.floor(time / 60);
         const second = this._pad(Math.floor(time % 60));
         return `${minute}:${second}`;
-      },
-      changePlayMode() {
-        const mode = (this.mode + 1) % 3;
-        let list = this.sequenceList;
-
-        if (mode === playMode.random) {
-          list = shuffle(list);
-        }
-
-        this.resetCurrentIndex(list);
-        this.setPlayMode(mode);
-        this.setPlayList(list);
-      },
-      resetCurrentIndex(list) {
-        const index = list.findIndex(song => song.id === this.currentSong.id);
-        this.setCurrentIndex(index);
       },
       onProgressBarChange(percent) {
         const currentTime = this.currentSong.duration * percent;
@@ -524,9 +498,6 @@
       ...mapMutations({
         setFullScreen: 'SET_FULL_SCREEN',
         setPlayState: 'SET_PLAYING_STATE',
-        setCurrentIndex: 'SET_CURRENT_INDEX',
-        setPlayMode: 'SET_PLAY_MODE',
-        setPlayList: 'SET_PLAYLIST',
       }),
     },
   };

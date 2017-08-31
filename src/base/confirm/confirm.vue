@@ -1,6 +1,6 @@
 <template lang="html">
   <transition name="confirm-fade">
-    <div class="confirm" v-show="isShow">
+    <div class="confirm" v-show="isShow" @click.stop>
       <div class="confirm-inner">
         <div class="confirm-content">
           <p class="title">{{title}}</p>
@@ -11,8 +11,8 @@
             >{{cancelBtnText}}</div>
             <div
               class="operate-btn"
-              @click="comfirm"
-            >{{comfirmBtnText}}</div>
+              @click="confirm"
+            >{{confirmBtnText}}</div>
           </div>
         </div>
       </div>
@@ -27,13 +27,13 @@ export default {
       type: String,
       default: '',
     },
-    comfirmBtnText: {
+    confirmBtnText: {
       type: String,
       default: '',
     },
     cancelBtnText: {
       type: String,
-      default: '',
+      default: '取消',
     },
     isShow: {
       type: Boolean,
@@ -44,8 +44,8 @@ export default {
     cancel() {
       this.$emit('cancel');
     },
-    comfirm() {
-      this.$emit('comfirm');
+    confirm() {
+      this.$emit('confirm');
     },
   },
 };
