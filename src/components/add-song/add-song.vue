@@ -22,7 +22,12 @@
               <song-list @select="selectSong" :songs="playHistory"></song-list>
             </div>
           </scroll>
-          <scroll :refreshDelay="refreshDelay" ref="searchList" class="list-scroll" v-show="switchIndex === 1" :data="searchHistory">
+          <scroll
+            ref="searchList"
+            class="list-scroll"
+            v-show="switchIndex === 1"
+            :data="searchHistory"
+          >
             <div class="list-inner">
               <search-list :searches="searchHistory" @select="addQuery" @delete="deleteHistory"></search-list>
             </div>
@@ -106,6 +111,7 @@ export default {
     },
     switchItem(index) {
       this.switchIndex = index;
+      this.refreshList();
     },
     selectSong(item, index) {
       if (index > 0) {
