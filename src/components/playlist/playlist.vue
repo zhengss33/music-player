@@ -11,7 +11,7 @@
             </span>
           </h1>
         </div>
-        <scroll ref="listContent" :data="sequenceList" class="list-content">
+        <scroll :refreshDelay="refreshDelay" ref="listContent" :data="sequenceList" class="list-content">
           <transition-group name="list" tag="ul">
             <li class="item" ref="list" v-for="(song, index) in sequenceList" :key="song.id" @click="selectItem(song, index)">
               <i class="current" :class="getCurrentIcon(song)"></i>
@@ -35,7 +35,7 @@
           <span>关闭</span>
         </div>
       </div>
-      <AddSong :showFlag="isAddSongShow" @hide="hideAddSong"></AddSong>
+      <AddSong ref="addSong"></AddSong>
       <confirm
         title="是否清空播放列表"
         confirmBtnText="清空"
@@ -61,7 +61,7 @@ export default {
     return {
       isShow: false,
       isConfirmShow: false,
-      isAddSongShow: false,
+      refreshDelay: 100,
     };
   },
   components: {
@@ -140,10 +140,7 @@ export default {
       this.isConfirmShow = false;
     },
     showAddSong() {
-      this.isAddSongShow = true;
-    },
-    hideAddSong() {
-      this.isAddSongShow = false;
+      this.$refs.addSong.show();
     },
     ...mapMutations({
       setPlayingState: 'SET_PLAYING_STATE',

@@ -32,6 +32,10 @@
         type: Boolean,
         default: false,
       },
+      refreshDelay: {
+        type: Number,
+        defalut: 20,
+      },
     },
     mounted() {
       this.$nextTick(() => {
@@ -88,9 +92,9 @@
     },
     watch: {
       data() {
-        this.$nextTick(() => {
+        setTimeout(() => {
           this.refresh();
-        });
+        }, this.refreshDelay);
       },
     },
   };

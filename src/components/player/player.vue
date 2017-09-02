@@ -128,7 +128,7 @@
   import ProgressCircle from 'base/progress-circle/progress-circle';
   import Scroll from 'base/scroll/scroll';
   import PlayList from 'components/playlist/playlist';
-  import { mapGetters, mapMutations } from 'vuex';
+  import { mapGetters, mapMutations, mapActions } from 'vuex';
   import animations from 'create-keyframe-animation';
   import { prefixStyle } from 'common/js/dom';
   import { playMode } from 'common/js/config';
@@ -322,6 +322,7 @@
       },
       readyPlay() {
         this.songReady = true;
+        this.savePlayHistory(this.currentSong);
       },
       errorPlay() {
         this.songReady = true;
@@ -499,6 +500,9 @@
         setFullScreen: 'SET_FULL_SCREEN',
         setPlayState: 'SET_PLAYING_STATE',
       }),
+      ...mapActions([
+        'savePlayHistory',
+      ]),
     },
   };
 </script>
