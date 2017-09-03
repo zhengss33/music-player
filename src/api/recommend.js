@@ -17,7 +17,7 @@ export function getRecommend() {
 }
 
 export function getPlayList() {
-  const url = debug ? 'api/getPlayList' : 'https://zhengss33.github.io/music-player/api/getPlayList';
+  const url = debug ? '/api/getPlayList' : 'https://zhengss33.github.io/music-player/api/getPlayList';
 
   const data = Object.assign({}, commonParams, {
     rnd: Math.random(),
