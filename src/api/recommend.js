@@ -2,6 +2,8 @@ import jsonp from 'common/js/jsonp';
 import axios from 'axios';
 import { commonParams, options } from './config';
 
+const debug = process.env.NODE_ENV !== 'production';
+
 export function getRecommend() {
   const url = 'https://c.y.qq.com/musichall/fcgi-bin/fcg_yqqhomepagerecommend.fcg';
 
@@ -15,7 +17,7 @@ export function getRecommend() {
 }
 
 export function getPlayList() {
-  const url = 'api/getPlayList';
+  const url = debug ? 'api/getPlayList' : 'https://zhengss33.github.io/music-player/api/getPlayList';
 
   const data = Object.assign({}, commonParams, {
     rnd: Math.random(),
