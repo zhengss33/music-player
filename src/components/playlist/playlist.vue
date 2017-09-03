@@ -16,8 +16,8 @@
             <li class="item" ref="list" v-for="(song, index) in sequenceList" :key="song.id" @click="selectItem(song, index)">
               <i class="current" :class="getCurrentIcon(song)"></i>
               <span class="text">{{song.name}}</span>
-              <span class="like">
-                <i class="icon-not-favorite"></i>
+              <span class="like" @click.stop="toggleFavorite(song)">
+                <i :class="getFavoriteIcon(song)"></i>
               </span>
               <span class="delete" @click.stop="deleteItem(song)">
                 <i class="icon-delete"></i>

@@ -23,6 +23,8 @@ const searchHistory = state => state.searchHistory;
 
 const playHistory = state => state.playHistory;
 
+const favoriteSongs = state => state.favoriteSongs;
+
 export {
   singer,
   playing,
@@ -36,4 +38,5 @@ export {
   toplist,
   searchHistory,
   playHistory,
+  favoriteSongs,
 };
