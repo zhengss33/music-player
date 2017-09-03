@@ -115,7 +115,7 @@
     <audio
       :src="currentSong.url"
       ref="audio"
-      @canplay="readyPlay"
+      @play="readyPlay"
       @error="errorPlay"
       @timeupdate="updateTime"
       @ended="end"
@@ -200,7 +200,9 @@
           this.currentLineNum = 0;
         }
 
-        this.$nextTick(() => {
+        clearTimeout(this.timer);
+        // 当从后台切换到当前页面时
+        this.timer = setTimeout(() => {
           this.$refs.audio.play();
           this.getLyric();
         }, 1000);
@@ -315,6 +317,7 @@
       loop() {
         this.$refs.audio.currentTime = 0;
         this.$refs.audio.play();
+        this.setPlayState(true);
 
         if (this.currentLyric) {
           this.currentLyric.seek(0);
@@ -351,6 +354,9 @@
       },
       getLyric() {
         this.currentSong.getLyric().then((lyric) => {
+          if (this.currentSong.lyric !== lyric) {
+            return;
+          }
           this.currentLyric = new Lyric(lyric, this.handleLyric);
           if (this.playing) {
             this.currentLyric.play();
@@ -585,7 +591,7 @@
               right: 0
               left: 0
               z-index: 10
-              background-image: url('../../common/images/cover.png')
+              background-image: url('cover.png')
               background-size: cover
             .cd
               position: absolute
