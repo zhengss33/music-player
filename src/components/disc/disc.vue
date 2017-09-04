@@ -31,17 +31,17 @@
         return this.disc.dissname;
       },
       bgImage() {
-        return this.disc.imgurl;
+        return this.disc.picUrl;
       },
     },
     methods: {
       _getDiscList() {
-        if (!this.disc.dissid) {
+        if (!this.disc.id) {
           this.$router.push('/recommend');
           return;
         }
 
-        getDiscList(this.disc.dissid).then((res) => {
+        getDiscList(this.disc.id).then((res) => {
           if (res.code === ERR_OK) {
             this.discList = this._normalizeList(res.cdlist[0].songlist);
           }

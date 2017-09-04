@@ -19,15 +19,15 @@
             <li
               class="list-item"
               v-for="item in playList"
-              :key="item.dissid"
+              :key="item.id"
               @click="selectItem(item)"
             >
               <div class="pic">
-                <img v-lazy="item.imgurl">
+                <img v-lazy="item.picUrl">
               </div>
               <div class="text">
-                <p class="desc" v-html="item.dissname"></p>
-                <h2 class="creator" v-html="item.creator.name"></h2>
+                <p class="desc" v-html="item.songListDesc"></p>
+                <h2 class="creator" v-html="item.songListAuthor"></h2>
               </div>
             </li>
           </ul>
@@ -44,7 +44,7 @@
 <script type="text/ecmascript-6">
   import Scroll from 'base/scroll/scroll';
   import Loading from 'base/loading/loading';
-  import { getRecommend, getPlayList } from 'api/recommend';
+  import { getRecommend } from 'api/recommend';
   import { ERR_OK } from 'api/config';
   import Slider from 'base/slider/slider';
   import { playListMixin } from 'common/js/mixin';
@@ -65,7 +65,8 @@
     },
     created() {
       this.getRecommendData();
-      this.getPlayListData();
+      // this.getPlayListData();
+      // this.getPersonalizedList();
     },
     methods: {
       handlePlayList(newList) {
@@ -74,10 +75,20 @@
         this.$refs.recommend.style.bottom = bottom;
         this.$refs.scroll.refresh();
       },
+      // getPersonalizedList() {
+      //   getPersonalizedList().then((res) => {
+      //     if (res.status === STATUS_OK) {
+      //       console.log(res.data);
+      //     }
+      //   }).catch((err) => {
+      //     throw Error(err);
+      //   });
+      // },
       getRecommendData() {
         getRecommend().then((res) => {
           if (res.code === ERR_OK) {
             this.recommends = res.data.slider;
+            this.playList = res.data.songList;
           }
         }).catch((err) => {
           throw Error(err);
@@ -91,18 +102,18 @@
           }, 20);
         }
       },
-      getPlayListData() {
-        getPlayList().then((res) => {
-          if (res.code === ERR_OK) {
-            this.playList = res.data.list;
-          }
-        }).catch((err) => {
-          throw Error(err);
-        });
-      },
+      // getPlayListData() {
+      //   getPlayList().then((res) => {
+      //     if (res.code === ERR_OK) {
+      //       this.playList = res.data.list;
+      //     }
+      //   }).catch((err) => {
+      //     throw Error(err);
+      //   });
+      // },
       selectItem(item) {
         this.$router.push({
-          path: `/recommend/${item.dissid}`,
+          path: `/recommend/${item.id}`,
         });
         this.setDisc(item);
       },
