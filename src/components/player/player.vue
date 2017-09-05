@@ -565,7 +565,7 @@
       .middle
         position: fixed
         width: 100%
-        top: 100px
+        top: 90px
         bottom: 170px
         white-space: nowrap
         font-size: 0
@@ -644,10 +644,9 @@
               font-size: $font-size-medium
       .bottom
         position: absolute
-        bottom: 50px
+        bottom: 40px
         width: 100%
         .dot-wrapper
-          margin-bottom: 10px
           text-align: center
           font-size: 0
           .dot
