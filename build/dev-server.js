@@ -12,6 +12,7 @@ var webpack = require('webpack')
 var proxyMiddleware = require('http-proxy-middleware')
 var webpackConfig = require('./webpack.dev.conf')
 var axios = require('axios')
+var bodyParser = require('body-parser')
 
 // default port where dev server listens for incoming traffic
 var port = process.env.PORT || config.dev.port
@@ -44,7 +45,7 @@ apiRoutes.get('/getLyric', function(req, res) {
     }
     res.json(ret)
   }).catch((e) => {
-    console.log(e);
+    console.log('Error: ' + e);
   })
 })
 
@@ -59,7 +60,39 @@ apiRoutes.get('/getPlayList', function(req, res) {
   }).then((response) => {
     res.json(response.data)
   }).catch((e) => {
-    console.log(e)
+    console.log('Error: ' + e)
+  })
+})
+
+apiRoutes.get('/getDiscList', function(req, res) {
+  var url = 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg'
+  axios.get(url, {
+    headers: {
+      referer: 'https://y.qq.com/w/taoge.html?ADTAG=myqq&from=myqq&channel=10007100&id=2646688496',
+      host: 'c.y.qq.com'
+    },
+    params: req.query
+  }).then((response) => {
+    res.json(response.data)
+  }).catch((e) => {
+    console.log('Error: ' + e)
+  })
+})
+
+apiRoutes.post('/getPurlUrl', bodyParser.json(), function (req, res) {
+  console.log('url')
+  const url = 'https://u.y.qq.com/cgi-bin/musicu.fcg'
+  axios.post(url, req.body, {
+    headers: {
+      referer: 'https://y.qq.com',
+      origin: 'https://y.qq.com',
+      host: 'c.y.qq.com',
+      'Content-type': 'application/x-www-form-urlencoded'
+    }
+  }).then((response) => {
+    res.json(response.data)
+  }).catch((e) => {
+    console.log('Error: ' + e)
   })
 })
 

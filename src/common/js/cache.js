@@ -37,7 +37,7 @@ function deleteFromArray(arr, compare) {
 }
 
 export function saveSearch(query) {
-  let searches = storage.get(SEARCH_KEY, []);
+  const searches = storage.get(SEARCH_KEY, []);
   insertArray(searches, query, item => item === query, SEARCH_MAX_LENGTH);
   storage.set(SEARCH_KEY, searches);
   return searches;
@@ -48,7 +48,7 @@ export function loadSearch() {
 }
 
 export function deleteSearch(query) {
-  let searches = storage.get(SEARCH_KEY, []);
+  const searches = storage.get(SEARCH_KEY, []);
   deleteFromArray(searches, item => item === query);
   storage.set(SEARCH_KEY, searches);
   return searches;
@@ -72,14 +72,14 @@ export function loadPlay() {
 
 
 export function saveFavorite(song) {
-  let favoriteSongs = storage.get(FAVORITE_KEY, []);
+  const favoriteSongs = storage.get(FAVORITE_KEY, []);
   insertArray(favoriteSongs, song, item => item.id === song.id, FAVORITE_MAX_LENGTH);
   storage.set(FAVORITE_KEY, favoriteSongs);
   return favoriteSongs;
 }
 
 export function deleteFavorite(song) {
-  let favoriteSongs = storage.get(FAVORITE_KEY, []);
+  const favoriteSongs = storage.get(FAVORITE_KEY, []);
   deleteFromArray(favoriteSongs, item => item.id === song.id);
   storage.set(FAVORITE_KEY, favoriteSongs);
   return favoriteSongs;

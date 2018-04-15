@@ -37,17 +37,28 @@ export function getPlayList() {
 }
 
 export function getDiscList(disstid) {
-  const url = 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg';
+  const url = debug ? '/api/getDiscList' : 'https://zhengss33.github.io/music-player/api/getDiscList';
 
   const data = Object.assign({}, commonParams, {
+    uin: 0,
     type: 1,
+    json: 1,
+    utf8: 1,
     onlysong: 0,
     disstid,
     loginUin: 0,
     hostUin: 0,
-    platform: 'yqq',
-    needNewCode: 0,
+    platform: 'h5',
+    needNewCode: 1,
+    new_format: 1,
+    pic: 500,
+    format: 'json',
+    nosign: 1,
+    song_begin: 0,
+    song_num: 15,
   });
 
-  return jsonp(url, data, options);
+  return axios.get(url, {
+    params: data,
+  }).then(res => Promise.resolve(res.data));
 }

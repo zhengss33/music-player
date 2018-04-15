@@ -1,4 +1,4 @@
-import { getLyric } from 'api/song';
+import { getLyric, getSongsUrl } from 'api/song';
 import { ERR_OK } from 'api/config';
 import { Base64 } from 'js-base64';
 
@@ -51,6 +51,27 @@ export function createSong(musicData) {
     album: musicData.albumname,
     duration: musicData.interval,
     image: `https://y.gtimg.cn/music/photo_new/T002R300x300M000${musicData.albummid}.jpg?max_age=2592000`,
-    url: `http://ws.stream.qqmusic.qq.com/${musicData.songid}.m4a?fromtag=46`,
+    url: musicData.url,
+  });
+}
+
+export function isValidMusic(musicData) {
+  const { id, album: { mid }, pay } = musicData;
+  return id && mid && (!pay || pay.price_album === 0);
+}
+
+export function processSongsUrl(songs) {
+  if (!songs.length) {
+    return Promise.resolve(songs);
+  }
+  return getSongsUrl(songs).then((res) => {
+    if (res.code === ERR_OK) {
+      const midUrlInfo = res.url_mid.data.midurlinfo;
+      midUrlInfo.forEach((info, index) => {
+        const song = songs[index];
+        song.url = `http://dl.stream.qqmusic.qq.com/${info.purl}`;
+      });
+    }
+    return songs;
   });
 }

@@ -1,6 +1,6 @@
 <template lang="html">
   <transition name="slider">
-    <music-list :songs="discList" :title="title" :bgImage="bgImage"></music-list>
+    <music-list :songs="songs" :title="title" :bgImage="bgImage"></music-list>
   </transition>
 </template>
 
@@ -9,12 +9,12 @@
   import { mapGetters } from 'vuex';
   import { getDiscList } from 'api/recommend';
   import { ERR_OK } from 'api/config';
-  import { createSong } from 'common/js/format-song';
+  import { createSong, isValidMusic, processSongsUrl } from 'common/js/format-song';
 
   export default {
     data() {
       return {
-        discList: [],
+        songs: [],
       };
     },
     created() {
@@ -24,15 +24,15 @@
       MusicList,
     },
     computed: {
-      ...mapGetters([
-        'disc',
-      ]),
       title() {
         return this.disc.dissname;
       },
       bgImage() {
         return this.disc.picUrl;
       },
+      ...mapGetters([
+        'disc',
+      ]),
     },
     methods: {
       _getDiscList() {
@@ -43,15 +43,25 @@
 
         getDiscList(this.disc.id).then((res) => {
           if (res.code === ERR_OK) {
-            this.discList = this._normalizeList(res.cdlist[0].songlist);
+            processSongsUrl(this._normalizeSongs(res.cdlist[0].songlist))
+            .then((songs) => {
+              this.songs = songs;
+            });
           }
         });
       },
-      _normalizeList(list) {
+      _normalizeSongs(list) {
         const ret = [];
         list.forEach((musicData) => {
-          if (musicData.albummid && musicData.songid) {
-            ret.push(createSong(musicData));
+          if (isValidMusic(musicData)) {
+            const songData = Object.assign({
+              songid: musicData.id,
+              songmid: musicData.mid,
+              songname: musicData.title,
+              albumname: musicData.album.name,
+              interval: musicData.interval,
+            }, musicData);
+            ret.push(createSong(songData));
           }
         });
         return ret;
