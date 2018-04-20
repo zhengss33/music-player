@@ -31,7 +31,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/api': {
-        target: "http://neteasemusic.leanapp.cn",
+        target: "https://neteasemusic.leanapp.cn",
         changeOrigin: true,
         pathRewrite: { "^/api": ""}
       }
