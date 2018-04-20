@@ -60,7 +60,7 @@ export function clearSearch() {
 }
 
 export function savePlay(song) {
-  let playHistory = storage.get(PLAY_KEY, []);
+  const playHistory = storage.get(PLAY_KEY, []);
   insertArray(playHistory, song, item => item.id === song.id, PLAY_MAX_LENGTH);
   storage.set(PLAY_KEY, playHistory);
   return playHistory;

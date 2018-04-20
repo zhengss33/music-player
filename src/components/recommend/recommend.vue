@@ -1,13 +1,14 @@
 <template>
   <div class="recommend" ref="recommend">
-    <scroll ref="scroll" class="recommend-content" :data="playList">
+    <scroll ref="scroll" class="recommend-content" :data="discList">
       <div>
-        <div class="slider-wrapper" v-if="recommends.length">
+        <div class="slider-wrapper" v-if="banners.length">
           <div class="slider-content">
             <slider>
-              <div v-for="item in recommends" :key="item.id">
-                <a :href="item.linkUrl">
-                  <img class="needsclick" @load="loadImage" :src="item.picUrl">
+              <div v-if="item.targetType !== 3000
+" v-for="item in banners" :key="item.id">
+                <a :href="item.url">
+                  <img class="needsclick" @load="loadImage" :src="item.pic">
                 </a>
               </div>
             </slider>
@@ -18,22 +19,22 @@
           <ul>
             <li
               class="list-item"
-              v-for="item in playList"
+              v-for="item in discList"
               :key="item.id"
               @click="selectItem(item)"
             >
               <div class="pic">
-                <img v-lazy="item.picUrl">
+                <img v-lazy="item.coverImgUrl">
               </div>
               <div class="text">
-                <p class="desc" v-html="item.songListDesc"></p>
-                <h2 class="creator" v-html="item.songListAuthor"></h2>
+                <p class="desc" v-html="item.name"></p>
+                <h2 class="creator" v-html="item.creator.nickname"></h2>
               </div>
             </li>
           </ul>
         </div>
       </div>
-      <div class="loading-container" v-show="!playList.length">
+      <div class="loading-container" v-show="!discList.length">
         <loading></loading>
       </div>
     </scroll>
@@ -44,7 +45,7 @@
 <script type="text/ecmascript-6">
   import Scroll from 'base/scroll/scroll';
   import Loading from 'base/loading/loading';
-  import { getRecommend } from 'api/recommend';
+  import { getBanner, getDiscList } from 'api/recommend';
   import { ERR_OK } from 'api/config';
   import Slider from 'base/slider/slider';
   import { playListMixin } from 'common/js/mixin';
@@ -54,8 +55,8 @@
     mixins: [playListMixin],
     data() {
       return {
-        recommends: [],
-        playList: [],
+        banners: [],
+        discList: [],
       };
     },
     components: {
@@ -65,8 +66,6 @@
     },
     created() {
       this.getRecommendData();
-      // this.getPlayListData();
-      // this.getPersonalizedList();
     },
     methods: {
       handlePlayList(newList) {
@@ -75,20 +74,18 @@
         this.$refs.recommend.style.bottom = bottom;
         this.$refs.scroll.refresh();
       },
-      // getPersonalizedList() {
-      //   getPersonalizedList().then((res) => {
-      //     if (res.status === STATUS_OK) {
-      //       console.log(res.data);
-      //     }
-      //   }).catch((err) => {
-      //     throw Error(err);
-      //   });
-      // },
       getRecommendData() {
-        getRecommend().then((res) => {
+        getBanner().then((res) => {
           if (res.code === ERR_OK) {
-            this.recommends = res.data.slider;
-            this.playList = res.data.songList;
+            this.banners = res.banners;
+          }
+        }).catch((err) => {
+          throw Error(err);
+        });
+
+        getDiscList().then((res) => {
+          if (res.code === ERR_OK) {
+            this.discList = res.playlists;
           }
         }).catch((err) => {
           throw Error(err);
@@ -102,15 +99,6 @@
           }, 20);
         }
       },
-      // getPlayListData() {
-      //   getPlayList().then((res) => {
-      //     if (res.code === ERR_OK) {
-      //       this.playList = res.data.list;
-      //     }
-      //   }).catch((err) => {
-      //     throw Error(err);
-      //   });
-      // },
       selectItem(item) {
         this.$router.push({
           path: `/recommend/${item.id}`,
