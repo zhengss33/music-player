@@ -11,7 +11,7 @@ const baseUrl = 'https://neteasemusic.leanapp.cn';
 
 const apiRoutes = express.Router();
 
-apiRoutes.get('/api/banner', function(req, res) {
+apiRoutes.get('/banner', function(req, res) {
   let url = `${baseUrl}/api/banner`;
 
   axios.get(url, {
@@ -26,7 +26,7 @@ apiRoutes.get('/api/banner', function(req, res) {
   })
 })
 
-apiRoutes.get('/api/top/playlist', function(req, res) {
+apiRoutes.get('/top/playlist', function(req, res) {
   let url = `${baseUrl}/api/top/playlist`;
 
   axios.get(url, {

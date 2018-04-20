@@ -25,7 +25,7 @@ export function getLyric(mid) {
 /* eslint-disable */
 
 export function getSongsUrl(songs) {
-  const url = debug ? '/api/getPurlUrl' : 'http://ustbhuangyi.com/music/api/getPurlUrl'
+  const url = debug ? '/api/getPurlUrl' : 'https://zhengss33.github.io/music-player/api/getPurlUrl'
 
   let mids = []
   let types = []
