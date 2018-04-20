@@ -1,11 +1,9 @@
-import { getLyric, getSongsUrl } from 'api/song';
+import { getLyric } from 'api/song';
 import { ERR_OK } from 'api/config';
-import { Base64 } from 'js-base64';
 
 export default class Song {
-  constructor({ id, mid, singer, name, album, duration, image, url }) {
+  constructor({ id, singer, name, album, duration, image, url }) {
     this.id = id;
-    this.mid = mid;
     this.singer = singer;
     this.name = name;
     this.album = album;
@@ -20,9 +18,9 @@ export default class Song {
     }
 
     return new Promise((resolve, reject) => {
-      getLyric(this.mid).then((res) => {
+      getLyric(this.id).then((res) => {
         if (res.code === ERR_OK) {
-          this.lyric = Base64.decode(res.lyric);
+          this.lyric = res.lrc.lyric;
           resolve(this.lyric);
         } else {
           reject('no lyric');
@@ -43,35 +41,18 @@ function filterSinger(singers) {
 }
 
 export function createSong(musicData) {
-  return new Song({
-    id: musicData.songid,
-    mid: musicData.songmid,
+  // musicData = {
+    // id:
+    // singer:
+    // name:
+    // album:
+    // duration:
+    // image:
+  // }
+  const data = Object.assign(musicData, {
+    url: `http://music.163.com/song/media/outer/url?id=${musicData.id}.mp3`,
     singer: filterSinger(musicData.singer),
-    name: musicData.songname,
-    album: musicData.albumname,
-    duration: musicData.interval,
-    image: `https://y.gtimg.cn/music/photo_new/T002R300x300M000${musicData.albummid}.jpg?max_age=2592000`,
-    url: musicData.url,
+    duration: musicData.duration / 1000,
   });
-}
-
-export function isValidMusic(musicData) {
-  const { id, album: { mid }, pay } = musicData;
-  return id && mid && (!pay || pay.price_album === 0);
-}
-
-export function processSongsUrl(songs) {
-  if (!songs.length) {
-    return Promise.resolve(songs);
-  }
-  return getSongsUrl(songs).then((res) => {
-    if (res.code === ERR_OK) {
-      const midUrlInfo = res.url_mid.data.midurlinfo;
-      midUrlInfo.forEach((info, index) => {
-        const song = songs[index];
-        song.url = `http://dl.stream.qqmusic.qq.com/${info.purl}`;
-      });
-    }
-    return songs;
-  });
+  return new Song(data);
 }

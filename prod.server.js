@@ -7,7 +7,7 @@ const port = process.env.PROT || config.build.port;
 
 const app = express();
 
-const baseUrl = 'https://neteasemusic.leanapp.cn';
+const baseUrl = 'http://neteasemusic.leanapp.cn';
 
 const apiRoutes = express.Router();
 

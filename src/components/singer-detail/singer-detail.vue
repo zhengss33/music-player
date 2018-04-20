@@ -11,14 +11,16 @@
 
 <script type="text/ecmascript-6">
   import MusicList from 'components/music-list/music-list';
-  import { mapGetters } from 'vuex';
-  import { getSingerDetail } from 'api/singer';
+  import { getSingerId, getSingerDetail } from 'api/singer';
   import { ERR_OK } from 'api/config';
   import { createSong } from 'common/js/format-song';
 
   export default {
     data() {
       return {
+        id: '',
+        title: '',
+        bgImage: '',
         songs: [],
       };
     },
@@ -28,38 +30,44 @@
     created() {
       this._getDetail();
     },
-    computed: {
-      title() {
-        return this.singer.name;
-      },
-      bgImage() {
-        return this.singer.avatar;
-      },
-      ...mapGetters([
-        'singer',
-      ]),
-    },
     methods: {
       _getDetail() {
-        const id = this.singer.mid;
-        if (!id) {
+        const name = this.$route.query.name;
+        if (!name) {
           this.$router.push('/singer');
           return;
         }
 
-        getSingerDetail(id).then((res) => {
+        getSingerId(name).then((res) => {
           if (res.code === ERR_OK) {
-            const list = res.data.list;
-            this.songs = this._normalizeSongs(list);
+            const id = res.result.artists[0].id;
+            this.id = id;
+            return Promise.resolve(id);
           }
+        }).then((id) => {
+          getSingerDetail(id).then((res) => {
+            if (res.code === ERR_OK) {
+              const { hotSongs, artist: { name: title, picUrl } } = res;
+              this.title = title;
+              this.bgImage = picUrl;
+              this.songs = this._normalizeSongs(hotSongs);
+            }
+          });
         });
       },
       _normalizeSongs(list) {
         const ret = [];
         list.forEach((song) => {
-          const { musicData } = song;
-          if (musicData.songid && musicData.albummid) {
-            ret.push(createSong(musicData));
+          if (song.id && song.al.id) {
+            const { id, name, ar, dt, al: { name: albumName, picUrl } } = song;
+            ret.push(createSong({
+              id,
+              singer: ar,
+              name,
+              album: albumName,
+              duration: dt,
+              image: picUrl,
+            }));
           }
         });
         return ret;

@@ -55,5 +55,6 @@ module.exports = {
       },
     ],
     'prefer-const': 'warn',
+    'consistent-return': 0,
   }
 }

@@ -18,3 +18,13 @@ export function getDiscList() {
     },
   }).then(res => Promise.resolve(res.data));
 }
+
+export function getDiscDetail(discid) {
+  const url = debug ? '/api/playlist/detail' : `${baseUrl}/api/playlist/detail`;
+
+  return axios.get(url, {
+    params: {
+      id: discid,
+    },
+  }).then(res => Promise.resolve(res.data));
+}

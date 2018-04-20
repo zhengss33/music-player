@@ -1,14 +1,14 @@
 <template>
   <scroll
     class="listview"
-    :data="data"
+    :data="list"
     ref="listview"
     :probeType="probeType"
     :listenScroll="listenScroll"
     @scroll="onScroll"
   >
     <ul>
-      <li class="list-group" v-for="group in data" ref="listGroup">
+      <li class="list-group" v-for="group in list" ref="listGroup">
         <h2 class="list-group-title">{{group.title}}</h2>
         <ul>
           <li @click="selectItem(item)" class="list-group-item" v-for="item in group.items">
@@ -31,7 +31,7 @@
         >{{item}}</li>
       </ul>
     </div>
-    <div v-show="!data.length" class="loading-container"><loading></loading></div>
+    <div v-show="!list.length" class="loading-container"><loading></loading></div>
     <div class="list-fixed" v-show="fixedTitle" ref="fixed">
       <h2 class="fixed-title">{{fixedTitle}}</h2>
     </div>
@@ -53,7 +53,7 @@
       };
     },
     props: {
-      data: {
+      list: {
         type: Array,
         default: [],
       },
@@ -73,7 +73,7 @@
       this.fixedTop = 0;
     },
     watch: {
-      data() {
+      list() {
         this.$nextTick(() => {
           this._calculateHeight();
         });
@@ -112,10 +112,10 @@
     },
     computed: {
       shortcutList() {
-        return this.data.map(group => group.title.substring(0));
+        return this.list.map(group => group.title.substring(0));
       },
       fixedTitle() {
-        const currList = this.data[this.currentIndex];
+        const currList = this.list[this.currentIndex];
         if (this.scrollY > 0) {
           return '';
         }

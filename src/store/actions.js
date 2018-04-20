@@ -14,7 +14,7 @@ const findIndex = function findIndex(list, song) {
   return list.findIndex(item => item.id === song.id);
 };
 
-export const selectPlay = function selectPlay({ commit, state }, { list, index }) {
+const selectPlay = function selectPlay({ commit, state }, { list, index }) {
   let playList = null;
   let currentIndex = 0;
 
@@ -33,7 +33,7 @@ export const selectPlay = function selectPlay({ commit, state }, { list, index }
   commit(types.SET_FULL_SCREEN, true);
 };
 
-export const randomPlay = function randomPlay({ commit }, { list }) {
+const randomPlay = function randomPlay({ commit }, { list }) {
   const randomList = shuffle(list);
 
   commit(types.SET_PLAY_MODE, playMode.random);
@@ -44,7 +44,7 @@ export const randomPlay = function randomPlay({ commit }, { list }) {
   commit(types.SET_FULL_SCREEN, true);
 };
 
-export const insertSong = function insertSong({ commit, state }, song) {
+const insertSong = function insertSong({ commit, state }, song) {
   /* eslint-disable */
   let playlist = state.playlist.slice();
   let sequenceList = state.sequenceList.slice();
@@ -91,19 +91,19 @@ export const insertSong = function insertSong({ commit, state }, song) {
   commit(types.SET_FULL_SCREEN, true);
 };
 
-export const setSearchHistory = function setSearchHistory({ commit }, query) {
+const setSearchHistory = function setSearchHistory({ commit }, query) {
   commit(types.SET_SEARCH_HISTORY, saveSearch(query));
 };
 
-export const deleteSearchHistory = function deleteSearchHistory({ commit }, query) {
+const deleteSearchHistory = function deleteSearchHistory({ commit }, query) {
   commit(types.SET_SEARCH_HISTORY, deleteSearch(query));
 };
 
-export const clearSearchHistory = function clearSearchHistory({ commit }) {
+const clearSearchHistory = function clearSearchHistory({ commit }) {
   commit(types.SET_SEARCH_HISTORY, clearSearch());
 };
 
-export const deleteSong = function deleteSong({ commit, state }, song) {
+const deleteSong = function deleteSong({ commit, state }, song) {
   /* eslint-disable */
   let playList = state.playlist.slice();
   let sequenceList = state.sequenceList.slice();
@@ -128,21 +128,35 @@ export const deleteSong = function deleteSong({ commit, state }, song) {
   commit(types.SET_PLAYING_STATE, playState);
 };
 
-export const deleteSongList = function deleteSongList({ commit }) {
+const deleteSongList = function deleteSongList({ commit }) {
   commit(types.SET_PLAYLIST, []);
   commit(types.SET_SEQUENCE_LIST, []);
   commit(types.SET_CURRENT_INDEX, -1);
   commit(types.SET_PLAYING_STATE, false);
 }
 
-export const savePlayHistory = function savePlayHistory({ commit }, song) {
+const savePlayHistory = function savePlayHistory({ commit }, song) {
   commit(types.SET_PLAY_HISTORY, savePlay(song));
 }
 
-export const saveFavoriteSong = function saveFavoriteSong({ commit }, song) {
+const saveFavoriteSong = function saveFavoriteSong({ commit }, song) {
   commit(types.SET_FAVORITE_SONGS, saveFavorite(song));
 }
 
-export const deleteFavoriteSong = function deleteFavoriteSong({ commit }, song) {
+const deleteFavoriteSong = function deleteFavoriteSong({ commit }, song) {
   commit(types.SET_FAVORITE_SONGS, deleteFavorite(song));
+}
+
+export {
+  selectPlay,
+  randomPlay,
+  insertSong,
+  setSearchHistory,
+  deleteSearchHistory,
+  clearSearchHistory,
+  deleteSong,
+  deleteSongList,
+  savePlayHistory,
+  saveFavoriteSong,
+  deleteFavoriteSong,
 }

@@ -6,15 +6,16 @@
 
 <script>
   import MusicList from 'components/music-list/music-list';
-  import { mapGetters } from 'vuex';
-  import { getDiscList } from 'api/recommend';
+  import { getDiscDetail } from 'api/recommend';
   import { ERR_OK } from 'api/config';
-  import { createSong, isValidMusic, processSongsUrl } from 'common/js/format-song';
+  import { createSong } from 'common/js/format-song';
 
   export default {
     data() {
       return {
         songs: [],
+        title: '',
+        bgImage: '',
       };
     },
     created() {
@@ -23,46 +24,35 @@
     components: {
       MusicList,
     },
-    computed: {
-      title() {
-        return this.disc.dissname;
-      },
-      bgImage() {
-        return this.disc.picUrl;
-      },
-      ...mapGetters([
-        'disc',
-      ]),
-    },
     methods: {
       _getDiscList() {
-        if (!this.disc.id) {
+        if (!this.$route.params.id) {
           this.$router.push('/recommend');
           return;
         }
 
-        getDiscList(this.disc.id).then((res) => {
+        getDiscDetail(this.$route.params.id).then((res) => {
           if (res.code === ERR_OK) {
-            processSongsUrl(this._normalizeSongs(res.cdlist[0].songlist))
-            .then((songs) => {
-              this.songs = songs;
-            });
+            const data = res.playlist;
+            this.songs = this._normalizeSongs(data.tracks);
+            this.title = data.name;
+            this.bgImage = data.coverImgUrl;
           }
         });
       },
       _normalizeSongs(list) {
         const ret = [];
         list.forEach((musicData) => {
-          if (isValidMusic(musicData)) {
-            const songData = Object.assign({
-              songid: musicData.id,
-              songmid: musicData.mid,
-              songname: musicData.title,
-              albumname: musicData.album.name,
-              interval: musicData.interval,
-            }, musicData);
-            ret.push(createSong(songData));
-          }
+          const { al: { picUrl, name: album }, ar, name, id, dt } = musicData;
+          const song = createSong({
+            id,
+            name,
+            album,
+            singer: ar,
+            image: picUrl,
+            duration: dt,
+          });
+          ret.push(song);
         });
         return ret;
       },

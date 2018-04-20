@@ -326,6 +326,11 @@
       readyPlay() {
         this.songReady = true;
         this.savePlayHistory(this.currentSong);
+
+        if (this.currentLyric) {
+          const currentTime = this.currentSong.duration * this.percent * 1000;
+          this.currentLyric.seek(currentTime);
+        }
       },
       errorPlay() {
         this.songReady = true;
@@ -358,7 +363,7 @@
             return;
           }
           this.currentLyric = new Lyric(lyric, this.handleLyric);
-          if (this.playing) {
+          if (this.playing && this.songReady) {
             this.currentLyric.play();
           }
         }).catch(() => {

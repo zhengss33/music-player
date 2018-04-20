@@ -1,13 +1,13 @@
 <template>
   <div class="singer-container" ref="singer">
-    <listview ref="list" @select="selectSinger" :data="singerList"></listview>
+    <listview ref="list" @select="selectSinger" :list="singerList"></listview>
     <router-view></router-view>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
   import { getSingerList } from 'api/singer';
-  import { ERR_OK } from 'api/config';
+  import { STATUS_OK } from 'api/config';
   import FormatSinger from 'common/js/format-singer';
   import Listview from 'base/listview/listview';
   import { mapMutations } from 'vuex';
@@ -38,13 +38,13 @@
       },
       selectSinger(singer) {
         this.$router.push({
-          path: `/singer/${singer.mid}`,
+          path: `/singer/${singer.mid}?name=${singer.name}`,
         });
         this.setSinger(singer);
       },
       _getSingerList() {
         getSingerList().then((res) => {
-          if (res.code === ERR_OK) {
+          if (res.code === STATUS_OK) {
             this.singerList = this._normalSingerList(res.data.list);
           }
         }).catch((err) => {

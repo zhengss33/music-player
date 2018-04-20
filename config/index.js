@@ -8,8 +8,8 @@ module.exports = {
     index: path.resolve(__dirname, '../dist/index.html'),
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
-    assetsPublicPath: 'https://zhengss33.github.io/music-player/dist/',
-    // assetsPublicPath: '/',
+    // assetsPublicPath: 'https://zhengss33.github.io/music-player/dist/',
+    assetsPublicPath: '',
     productionSourceMap: true,
     // Gzip off by default as many popular static hosts such as
     // Surge or Netlify already gzip all static assets for you.
@@ -31,7 +31,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/api': {
-        target: "https://neteasemusic.leanapp.cn",
+        target: "http://neteasemusic.leanapp.cn",
         changeOrigin: true,
         pathRewrite: { "^/api": ""}
       }
