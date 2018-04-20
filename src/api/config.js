@@ -11,6 +11,6 @@ export const options = {
   prefix: 'jp',
 };
 
-export const baseUrl = 'http://music.zhengss.com';
+export const baseUrl = 'https://zhengss33.github.io/music-player';
 
 export const ERR_OK = 200;
