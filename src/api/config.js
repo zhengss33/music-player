@@ -11,6 +11,6 @@ export const options = {
   prefix: 'jp',
 };
 
-export const baseUrl = 'https://neteasemusic.leanapp.cn';
+export const baseUrl = 'http://music.zhengss.com';
 
 export const ERR_OK = 200;

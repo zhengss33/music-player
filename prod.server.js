@@ -7,7 +7,39 @@ const port = process.env.PROT || config.build.port;
 
 const app = express();
 
+const baseUrl = 'https://neteasemusic.leanapp.cn';
+
 const apiRoutes = express.Router();
+
+apiRoutes.get('/api/banner', function(req, res) {
+  let url = `${baseUrl}/api/banner`;
+
+  axios.get(url, {
+    headers: {''
+      referer: 'baseUrl',
+      host: 'neteasemusic.leanapp.cn'
+    }
+  }).then(response => {
+    res.json(response)
+  }).catch(err => {
+    console.log('Error', err)
+  })
+})
+
+apiRoutes.get('/api/top/playlist', function(req, res) {
+  let url = `${baseUrl}/api/top/playlist`;
+
+  axios.get(url, {
+    headers: {''
+      referer: 'baseUrl',
+      host: 'neteasemusic.leanapp.cn'
+    }
+  }).then(response => {
+    res.json(response)
+  }).catch(err => {
+    console.log('Error', err)
+  })
+})
 
 apiRoutes.get('/getLyric', function(req, res) {
   var url = 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg';
