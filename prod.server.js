@@ -15,8 +15,8 @@ apiRoutes.get('/banner', function(req, res) {
   let url = `${baseUrl}/api/banner`;
 
   axios.get(url, {
-    headers: {''
-      referer: 'baseUrl',
+    headers: {
+      referer: baseUrl,
       host: 'neteasemusic.leanapp.cn'
     }
   }).then(response => {
@@ -30,8 +30,8 @@ apiRoutes.get('/top/playlist', function(req, res) {
   let url = `${baseUrl}/api/top/playlist`;
 
   axios.get(url, {
-    headers: {''
-      referer: 'baseUrl',
+    headers: {
+      referer: baseUrl,
       host: 'neteasemusic.leanapp.cn'
     }
   }).then(response => {
