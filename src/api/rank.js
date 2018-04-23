@@ -1,17 +1,15 @@
 import jsonp from 'common/js/jsonp';
-import { commonParams, options } from 'api/config';
+import axios from 'axios';
+import { commonParams, options, baseUrl } from 'api/config';
 
-export function getTopList() {
-  const url = 'https://c.y.qq.com/v8/fcg-bin/fcg_myqq_toplist.fcg';
+const debug = process.env.NODE_ENV !== 'production';
 
-  const data = Object.assign({}, commonParams, {
-    uin: 0,
-    platform: 'h5',
-    needNewCode: 1,
-    _: 1502112165634,
-  });
+export function getTopList(idx) {
+  const url = debug ? '/api/top/list' : `${baseUrl}/api/top/list`;
 
-  return jsonp(url, data, options);
+  return axios.get(url, {
+    params: { idx },
+  }).then(res => Promise.resolve(res.data));
 }
 
 export function getTopSongs(topid) {

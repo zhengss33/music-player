@@ -4,12 +4,12 @@
       <ul>
         <li class="item" @click="selectItem(item)" v-for="item in topList" :key="item.id">
           <div class="pic">
-            <img v-lazy="item.picUrl" width="100" height="100"/>
+            <img v-lazy="item.coverImgUrl" width="100" height="100"/>
           </div>
           <ul class="songlist">
-            <li class="song" v-for="(song, index) in item.songList">
+            <li class="song" v-for="(song, index) in item.tracks">
               <span>{{index + 1}}</span>
-              <span>{{song.songname}} - {{song.singername}}</span>
+              <span>{{song.name}} - {{formatSinger(song.artists)}}</span>
             </li>
           </ul>
         </li>
@@ -52,10 +52,19 @@
         this.$refs.scroll.refresh();
       },
       _getTopList() {
-        getTopList().then((res) => {
-          if (res.code === ERR_OK) {
-            this.topList = res.data.topList;
-          }
+        let tasks = [];
+        for (let i = 0; i <= 18; i++) {
+          tasks.push(getTopList(i));
+        }
+        Promise.all(tasks).then((res) => {
+          this.topList = res.map((data, idx) => {
+            let list = null;
+            if (data.code === ERR_OK) {
+              const { id, coverImgUrl, tracks, name: title } = data.result;
+              list = { idx, id, title, tracks: tracks.slice(0, 3), coverImgUrl };
+            }
+            return list;
+          });
         });
       },
       selectItem(item) {
@@ -64,6 +73,9 @@
         });
 
         this.setTopList(item);
+      },
+      formatSinger(artists) {
+        return artists.map(art => art.name).join('/');
       },
       ...mapMutations({
         setTopList: 'SET_TOP_LIST',

@@ -1,6 +1,6 @@
 <template>
   <div class="m-header">
-    <div class="icon"></div>
+    <!-- <div class="icon"></div> -->
     <h1 class="text">Music Player</h1>
     <router-link  class="mine" tag="div" to="/user">
       <i class="icon-mine"></i>

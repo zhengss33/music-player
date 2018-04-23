@@ -1,38 +1,43 @@
-import { commonParams, options } from 'api/config';
-import jsonp from 'common/js/jsonp';
+import axios from 'axios';
+import { baseUrl } from 'api/config';
 
-export function getHotKey() {
-  const url = 'https://c.y.qq.com/splcloud/fcgi-bin/gethotkey.fcg';
+const debug = process.env.NODE_ENV !== 'production';
 
-  const data = Object.assign({}, commonParams, {
-    uin: 0,
-    platform: 'h5',
-    needNewCode: 1,
-  });
+export function search(query, isShowSinger, page, limit) {
+  const url = debug ? '/api/search' : `${baseUrl}/api/search`;
+  const options = {
+    limit,
+    keywords: query,
+    offset: (page - 1) * limit,
+  };
 
-  return jsonp(url, data, options);
-}
+  if (isShowSinger) {
+    const getSinger = axios.get(url, {
+      params: Object.assign({ type: 100 }, options),
+    }).then(res => res.data);
 
-export function search(query, zhida, page, perpage) {
-  const url = 'https://c.y.qq.com/soso/fcgi-bin/search_for_qq_cp';
+    const getSongs = axios.get(url, {
+      params: Object.assign({ type: 1 }, options),
+    }).then(res => res.data);
 
-  const data = Object.assign({}, commonParams, {
-    w: query,
-    catZhida: zhida ? 1 : 0,
-    p: page,
-    perpage,
-    n: perpage,
-    zhidaqu: 1,
-    uin: 0,
-    platform: 'h5',
-    needNewCode: 1,
-    t: 0,
-    flag: 1,
-    ie: 'utf-8',
-    sem: 1,
-    aggr: 0,
-    remoteplace: 'txt.mqq.all',
-  });
+    return Promise.all([getSinger, getSongs]).then((res) => {
+      const singers = res[0];
+      const songs = res[1];
+      const result = {
+        total: singers.result.artistCount + songs.result.songCount,
+        songs,
+        singers,
+      };
+      return result;
+    });
+  }
 
-  return jsonp(url, data, options);
+  return axios.get(url, {
+    params: {
+      type: 1,
+      limit,
+      keywords: query,
+      offset: (page - 1) * limit,
+    },
+  }).then(res => res.data);
 }

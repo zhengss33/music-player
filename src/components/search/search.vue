@@ -4,28 +4,18 @@
       <search-box ref="searchBox" @queryChange="onQueryChange"></search-box>
     </div>
     <div ref="shortcutWrap" class="shortcut-wrapper" v-show="!query">
-      <scroll :refreshDelay="refreshDelay" ref="shortcut" class="shortcut" :data="shortcut">
-        <div>
-          <div class="hot-key">
-            <h1 class="title">热门搜索</h1>
-            <ul>
-              <li @click="addQuery(item.k)" v-for="item in hotkey" class="item">
-                <span>{{item.k}}</span>
-              </li>
-            </ul>
+      <scroll :refreshDelay="refreshDelay" ref="shortcut" class="shortcut" :data="searchHistory">
+        <div class="search-history">
+          <h1 class="title">
+            <span class="text">搜索历史</span>
+            <span class="clear" @click="confirmShow"><i class="icon-clear"></i></span>
+          </h1>
+          <search-list
+            :searches="searchHistory"
+            @select="addQuery"
+            @delete="deleteHistory"
+          ></search-list>
           </div>
-          <div class="search-history" v-show="this.searchHistory.length">
-            <h1 class="title">
-              <span class="text">搜索历史</span>
-              <span class="clear" @click="confirmShow"><i class="icon-clear"></i></span>
-            </h1>
-            <search-list
-              :searches="searchHistory"
-              @select="addQuery"
-              @delete="deleteHistory"
-            ></search-list>
-          </div>
-        </div>
       </scroll>
     </div>
     <div ref="searchResult" class="search-result" v-show="query">
@@ -49,8 +39,7 @@
   import SearchList from 'base/search-list/search-list';
   import Confirm from 'base/confirm/confirm';
   import Scroll from 'base/scroll/scroll';
-  import { getHotKey } from 'api/search';
-  import { ERR_OK } from 'api/config';
+//  import { ERR_OK } from 'api/config';
   import { mapActions } from 'vuex';
   import { playListMixin, searchMixin } from 'common/js/mixin';
 
@@ -58,7 +47,6 @@
     mixins: [playListMixin, searchMixin],
     data() {
       return {
-        hotkey: [],
         isConfirmShow: false,
       };
     },
@@ -70,12 +58,6 @@
       Scroll,
     },
     created() {
-      this._getHotKey();
-    },
-    computed: {
-      shortcut() {
-        return this.hotkey.concat(this.searchHistory);
-      },
     },
     watch: {
       query(newquery) {
@@ -105,13 +87,6 @@
       },
       cancelHandle() {
         this.isConfirmShow = false;
-      },
-      _getHotKey() {
-        getHotKey().then((res) => {
-          if (res.code === ERR_OK) {
-            this.hotkey = res.data.hotkey.slice(0, 10);
-          }
-        });
       },
       ...mapActions([
         'clearSearchHistory',

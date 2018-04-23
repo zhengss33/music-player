@@ -30,11 +30,11 @@ export function getSingerDetail(id) {
 }
 
 export function getSingerId(name) {
-  const url = debug ? '/api/search/suggest' : `${baseUrl}/api/search/suggest`;
+  const url = debug ? '/api/search' : `${baseUrl}/api/search`;
   return axios.get(url, {
     params: {
       keywords: name,
-      type: 1000,
+      type: 100,
     },
   }).then(res => Promise.resolve(res.data));
 }

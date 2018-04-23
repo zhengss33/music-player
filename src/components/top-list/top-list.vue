@@ -7,7 +7,7 @@
 <script>
   import MusicList from 'components/music-list/music-list';
   import { mapGetters } from 'vuex';
-  import { getTopSongs } from 'api/rank';
+  import { getTopList } from 'api/rank';
   import { ERR_OK } from 'api/config';
   import { createSong } from 'common/js/format-song';
 
@@ -25,10 +25,11 @@
     },
     computed: {
       title() {
-        return this.toplist.topTitle;
+        return this.toplist.title;
       },
       bgImage() {
-        return this.songs.length > 0 ? this.songs[0].image : '';
+        const tracks = this.toplist && this.toplist.tracks;
+        return tracks.length > 0 ? tracks[0].album.picUrl : '';
       },
       ...mapGetters([
         'toplist',
@@ -36,14 +37,15 @@
     },
     methods: {
       _getTopSongs() {
-        if (!this.toplist.id) {
+        const idx = this.toplist.idx;
+        if (idx === 'undefined') {
           this.$router.push('/rank');
           return;
         }
 
-        getTopSongs(this.toplist.id).then((res) => {
+        getTopList(idx).then((res) => {
           if (res.code === ERR_OK) {
-            this.songs = this._normalizeList(res.songlist);
+            this.songs = this._normalizeList(res.result.tracks);
           }
         });
       },
@@ -51,9 +53,16 @@
         const ret = [];
 
         list.forEach((song) => {
-          const musicData = song.data;
-          if (musicData.albummid && musicData.songid) {
-            ret.push(createSong(musicData));
+          if (song.id && song.album.id) {
+            const { id, artists, name, album, duration } = song;
+            ret.push(createSong({
+              id,
+              name,
+              duration,
+              image: album.picUrl,
+              album: album.name,
+              singer: artists,
+            }));
           }
         });
         return ret;

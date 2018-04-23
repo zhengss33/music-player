@@ -2,19 +2,23 @@
   <scroll
     class="suggest"
     :pullupRefresh="pullup"
-    :data="result"
+    :data="songs.concat(singers)"
     :listenBeforeScroll="listenBeforeScroll"
     @beforeScroll="listScroll"
     @scrollToEnd="_searchMore"
     ref="suggest"
   >
     <ul class="suggest-list">
-      <li class="suggest-item" v-for="item in result" @click="selectItem(item)">
-        <div class="icon">
-          <i :class="getIconCls(item)"></i>
-        </div>
+      <li class="suggest-item" v-for="item in singers" @click="selectItem(item)">
+        <div class="icon"><i class="icon-mine"></i></div>
         <div class="name">
-          <p class="text" v-html="getDisplayName(item)"></p>
+          <p class="text" v-html="item.singername"></p>
+        </div>
+      </li>
+      <li class="suggest-item" v-for="item in songs" @click="selectItem(item)">
+        <div class="icon"><i class="icon-music"></i></div>
+        <div class="name">
+          <p class="text" v-html="`${item.name}-${item.singer}`"></p>
         </div>
       </li>
       <loading v-show="hasMore"></loading>
@@ -35,14 +39,15 @@
   import FormatSinger from 'common/js/format-singer';
   import { mapMutations, mapActions } from 'vuex';
 
-  const TYPE_SINGER = 'singer';
-  const perpage = 20;
+  const LIMIT = 30;
 
   export default {
     data() {
       return {
+        total: 0,
         page: 1,
-        result: [],
+        singers: [],
+        songs: [],
         pullup: true,
         hasMore: true,
         listenBeforeScroll: true,
@@ -70,32 +75,15 @@
       },
     },
     methods: {
-      getDisplayName(item) {
-        if (item.type === TYPE_SINGER) {
-          return item.singername;
-        }
-        return `${item.name}-${item.singer}`;
-      },
-      getIconCls(item) {
-        return item.type === TYPE_SINGER ? 'icon-mine' : 'icon-music';
-      },
-      selectItem(item) {
-        if (item.type === TYPE_SINGER) {
-          this.selectSinger(item);
-        } else {
-          this.insertSong(item);
-        }
+      selectSong(song) {
+        this.insertSong(song);
         this.$emit('select');
       },
-      selectSinger(item) {
-        const singer = new FormatSinger({
-          name: item.singername,
-          id: item.singermid,
-        });
-
+      selectSinger(singer) {
         this.$router.push({
           path: `/search/${singer.mid}`,
         });
+        this.$emit('select');
         this.setSinger(singer);
       },
       listScroll() {
@@ -104,16 +92,26 @@
       refresh() {
         this.$refs.suggest.refresh();
       },
+      _getSearchResult() {
+        search(this.query, this.showSinger, this.page, LIMIT)
+          .then((res) => {
+            console.log(res);
+            if (res.singers.code === ERR_OK) {
+              this.singers = this.singers.concat(this._normalizeSinger(res.singers.result.artists));
+            }
+
+            if (res.songs.code === ERR_OK) {
+              this.songs = this.songs.concat(this._normalizeSongs(res.songs.result.songs));
+            }
+
+            this._checkMore();
+          });
+      },
       _search() {
         this.page = 1;
         this.hasMore = true;
         this.$refs.suggest.scroll.scrollTo(0, 0);
-        search(this.query, this.showSinger, this.page, perpage).then((res) => {
-          if (res.code === ERR_OK) {
-            this.result = this._normalize(res.data);
-            this._checkMore(res.data);
-          }
-        });
+        this._getSearchResult();
       },
       _searchMore() {
         if (!this.hasMore) {
@@ -121,38 +119,34 @@
         }
 
         this.page += 1;
-        search(this.query, this.showSinger, this.page, perpage).then((res) => {
-          if (res.code === ERR_OK) {
-            this.result = this.result.concat(this._normalize(res.data));
-            this._checkMore(res.data);
-          }
-        });
+        this._getSearchResult();
       },
-      _checkMore(data) {
-        const song = data.song;
-        if (!song.list.length || song.curnum + ((song.curpage - 1) * perpage) >= song.totalnum) {
+      _checkMore() {
+        const { songs, singers, page, total } = this;
+        if (!songs.length || !singers.length || page * LIMIT >= total) {
           this.hasMore = false;
         }
       },
-      _normalize(data) {
-        let ret = [];
-        const zhida = data.zhida;
-        if (zhida.singername && zhida.singermid) {
-          ret.push({ ...zhida, type: TYPE_SINGER });
-        }
+      _normalizeSinger(singers) {
+        const ret = singers.map((item) => {
+          const singer = new FormatSinger({
+            name: item.singername,
+            id: item.singermid,
+          });
+          return singer;
+        });
 
-        if (data.song) {
-          ret = ret.concat(this._normalizeSong(data.song.list));
-        }
         return ret;
       },
-      _normalizeSong(list) {
-        const ret = [];
-        list.forEach((musicData) => {
-          if (musicData.albummid && musicData.songmid) {
-            ret.push(createSong(musicData));
+      _normalizeSong(songs) {
+        const ret = songs.map((item) => {
+          let song = null;
+          if (item.id && item.album.id) {
+            song = createSong(item);
           }
+          return song;
         });
+
         return ret;
       },
       ...mapMutations({
